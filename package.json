@@ -4,7 +4,8 @@
   "main": "src/main.js",
   "license": "MIT",
   "scripts": {
-      "start": "electron ."
+      "start": "electron .",
+      "tsc": "tsc --watch"
   },
   "devDependencies": {
     "@types/electron": "^1.4.32",
