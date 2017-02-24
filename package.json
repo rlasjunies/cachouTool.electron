@@ -6,6 +6,7 @@
   "devDependencies": {
     "@types/electron": "^1.4.32",
     "electron-prebuilt": "^1.4.13",
+    "tslint": "^4.4.2",
     "typescript": "^2.2.1"
   }
 }
