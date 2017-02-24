@@ -9,7 +9,7 @@ app.on("ready", _ => {
     mainWindow = new electron.BrowserWindow({
     });
 
-    mainWindow.loadURL(`file://${__dirname}/main.html`);
+    mainWindow.loadURL(`file://${__dirname}/countDown.html`);
     mainWindow.on("closed", _ => {
         console.log("mainWindow closed");
         mainWindow = null;
