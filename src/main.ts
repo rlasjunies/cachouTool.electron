@@ -14,7 +14,25 @@ app.on("ready", _ => {
         let menuTemplate: Electron.MenuItemOptions[] = [
             {
                 label: electron.app.getName(),
-                click: () => { console.log("menu clicked");},
+                click: () => { console.log("menu clicked"); },
+                submenu: [
+                    {
+                        label: "sub1",
+                        click: _ => {
+                            console.log("sub menu clicked");
+                        }
+                    },
+                    {
+                        type: "separator",
+                    },
+                    {
+                        label: "Quit",
+                        click: _ => {
+                            electron.app.quit();
+                        },
+                        accelerator: "Win+Q"
+                    }
+                ]
 
             }
         ];
