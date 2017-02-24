@@ -11,7 +11,6 @@ app.on("ready", _ => {
     mainWindow = new electron.BrowserWindow({
     });
 
-    countDown();
 
     mainWindow.loadURL(`file://${__dirname}/countDown.html`);
     mainWindow.on("closed", _ => {
@@ -20,8 +19,12 @@ app.on("ready", _ => {
     });
 });
 
-ipc.on("countDownStart", _ => {
-    console.log("Got a countDownStart event");
-    
-})
+ipc.on("countDownStartClicked", _ => {
+    console.log("countDownStart clicked");
 
+    countDown( counterValue => {
+        // console.log("countDown callback");
+
+        mainWindow.webContents.send("countDown", counterValue);
+    });
+});

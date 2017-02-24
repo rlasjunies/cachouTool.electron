@@ -9,5 +9,11 @@ document
     .addEventListener("click",
     _ => {
         // console.log("click on the button");
-        ipc.send("countDownStart");
-    })
+        ipc.send("countDownStartClicked");
+    });
+
+ipc.on("countDown", (evt, count)  => {
+    console.log("countDown event received via ipc", count);
+
+    document.getElementById("counter").innerHTML = count;
+});

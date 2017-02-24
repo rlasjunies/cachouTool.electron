@@ -1,9 +1,9 @@
-export function countDown() {
+export function countDown(callBack: Function) {
     let count = 10;
 
     let timer = setInterval( _ => {
-        console.log(`count:${count}`);
-
+        // console.log(`count:${count}`);
+        callBack(count);
         count--;
         if (count === 0) {
             clearInterval(timer);
