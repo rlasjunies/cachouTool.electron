@@ -55,6 +55,7 @@ app.on("ready", _ => {
         ];
         let menu = Menu.buildFromTemplate(menuTemplate);
         Menu.setApplicationMenu(menu);
+        tray.setToolTip("That a great demo");
 
         win.loadURL(`file://${__dirname}/countDown.html`);
         win.on("closed", _ => {
