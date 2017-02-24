@@ -1,22 +1,36 @@
-import * as electron from "electron";
+// import * as electron from "electron";
+
+import { app, Menu, ipcMain, Tray, BrowserWindow } from "electron";
+
 import { countDown } from "./countDown.service";
 
-const app = electron.app;
-const ipc = electron.ipcMain;
+// const app = electron.app;
+// cconst ipc = electron.ipcMain;
 
 let windows: Electron.BrowserWindow[] = [];
 
 app.on("ready", _ => {
 
-    let tray = new electron.Tray(__dirname + "\\..\\assets\\trayIcon.jpg");
-    
+    let tray = new Tray(__dirname + "\\..\\assets\\trayIcon.jpg");
+    let trayMenuTemplate: Electron.MenuItemOptions[] = [
+        {
+            label: "About"
+        },
+        {
+            label: "Quit",
+            click: _ => { app.quit(); }
+        }
+    ];
+    let trayMenu = Menu.buildFromTemplate(trayMenuTemplate);
+    tray.setContextMenu(trayMenu);
+
     // console.log("electron is ready");
     [1, 2, 3].forEach(_ => {
-        let win = new electron.BrowserWindow({});
+        let win = new BrowserWindow({});
 
         let menuTemplate: Electron.MenuItemOptions[] = [
             {
-                label: electron.app.getName(),
+                label: app.getName(),
                 click: () => { console.log("menu clicked"); },
                 submenu: [
                     {
@@ -31,7 +45,7 @@ app.on("ready", _ => {
                     {
                         label: "Quit",
                         click: _ => {
-                            electron.app.quit();
+                            app.quit();
                         },
                         accelerator: "Win+Q"
                     }
@@ -39,8 +53,8 @@ app.on("ready", _ => {
 
             }
         ];
-        let menu = electron.Menu.buildFromTemplate(menuTemplate);
-        electron.Menu.setApplicationMenu(menu);
+        let menu = Menu.buildFromTemplate(menuTemplate);
+        Menu.setApplicationMenu(menu);
 
         win.loadURL(`file://${__dirname}/countDown.html`);
         win.on("closed", _ => {
@@ -52,7 +66,7 @@ app.on("ready", _ => {
     });
 });
 
-ipc.on("countDownStartClicked", _ => {
+ipcMain.on("countDownStartClicked", _ => {
     console.log("countDownStart clicked");
 
     countDown(counterValue => {
