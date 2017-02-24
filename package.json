@@ -1,10 +1,11 @@
 {
   "name": "electron",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "src/main.js",
   "license": "MIT",
   "devDependencies": {
-    "typescript": "^2.2.1",
-    "electron-prebuilt": "^1.4.13"
+    "@types/electron": "^1.4.32",
+    "electron-prebuilt": "^1.4.13",
+    "typescript": "^2.2.1"
   }
 }
