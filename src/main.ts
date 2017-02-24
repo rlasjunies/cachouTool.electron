@@ -7,6 +7,9 @@ const ipc = electron.ipcMain;
 let windows: Electron.BrowserWindow[] = [];
 
 app.on("ready", _ => {
+
+    let tray = new electron.Tray(__dirname + "\\..\\assets\\trayIcon.jpg");
+    
     // console.log("electron is ready");
     [1, 2, 3].forEach(_ => {
         let win = new electron.BrowserWindow({});
