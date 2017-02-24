@@ -8,7 +8,8 @@ app.on("ready", _ => {
     // console.log("electron is ready");
     mainWindow = new electron.BrowserWindow({
     });
-    
+
+    mainWindow.loadURL(`file://${__dirname}/main.html`);
     mainWindow.on("closed", _ => {
         console.log("mainWindow closed");
         mainWindow = null;
