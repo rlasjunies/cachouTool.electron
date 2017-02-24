@@ -2,6 +2,7 @@ import * as electron from "electron";
 import {countDown} from "./countDown.service";
 
 const app = electron.app;
+const ipc = electron.ipcMain;
 
 let mainWindow: Electron.BrowserWindow;
 
@@ -19,4 +20,8 @@ app.on("ready", _ => {
     });
 });
 
+ipc.on("countDownStart", _ => {
+    console.log("Got a countDownStart event");
+    
+})
 
