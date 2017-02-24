@@ -9,9 +9,17 @@ let windows: Electron.BrowserWindow[] = [];
 app.on("ready", _ => {
     // console.log("electron is ready");
     [1, 2, 3].forEach(_ => {
-        let win = new electron.BrowserWindow({
-        });
+        let win = new electron.BrowserWindow({});
 
+        let menuTemplate: Electron.MenuItemOptions[] = [
+            {
+                label: electron.app.getName(),
+                click: () => { console.log("menu clicked");},
+
+            }
+        ];
+        let menu = electron.Menu.buildFromTemplate(menuTemplate);
+        electron.Menu.setApplicationMenu(menu);
 
         win.loadURL(`file://${__dirname}/countDown.html`);
         win.on("closed", _ => {
@@ -20,7 +28,7 @@ app.on("ready", _ => {
         });
 
         windows.push(win);
-    })
+    });
 });
 
 ipc.on("countDownStartClicked", _ => {
@@ -29,8 +37,8 @@ ipc.on("countDownStartClicked", _ => {
     countDown(counterValue => {
         // console.log("countDown callback");
 
-        windows.forEach( win => {
+        windows.forEach(win => {
             win.webContents.send("countDown", counterValue);
-        })
+        });
     });
 });
