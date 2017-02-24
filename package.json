@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "main": "src/main.js",
   "license": "MIT",
+  "scripts": {
+      "start": "electron ."
+  },
   "devDependencies": {
     "@types/electron": "^1.4.32",
     "electron-prebuilt": "^1.4.13",
