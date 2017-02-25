@@ -1,34 +1,10 @@
-import { app, BrowserWindow, ipcRenderer } from "electron";
+import { ipcRenderer } from "electron";
+import * as evtDef from "./eventDef";
+import * as captureSrv from "./capture.service";
 
-export function screenConstructor(app: Electron.App): Electron.BrowserWindow {
-    let win = new BrowserWindow({
-        width: 0,
-        height: 0,
-        resizable: false,
-        frame: false,
-        show: false
-    });
+// console.log("screenCapture renderer loaded!");
+ipcRenderer.on(evtDef.SCREENCAPTURE_CLICKED, _ => {
+    // console.log("SCREENCAPTURE_CLICKED dans renderer screen Capture");
 
-    win.loadURL(`file://${__dirname}/screenCapture.html`);
-    win.on("closed", _ => {
-        console.log("screenCapture windows closed!");
-        win = null;
-    });
-
-
-    // document
-    //     .getElementById("start")
-    //     .addEventListener("click",
-    //     _ => {
-    //         // console.log("click on the button");
-    //         ipcRenderer.send("countDownStartClicked");
-    //     });
-
-    // ipcRenderer.on("countDown", (evt, count) => {
-    //     console.log("countDown event received via ipc", count);
-
-    //     document.getElementById("counter").innerHTML = count;
-    // });
-
-    return win;
-}
+    ipcRenderer.send(evtDef.MAIN_CONSOLE_LOG, "SCREENCAPTURE_CLICKED dans renderer screen Capture");
+});

@@ -1,5 +1,6 @@
 import { app, Menu, ipcMain, Tray, BrowserWindow, clipboard, globalShortcut } from "electron";
-import * as screenCapture from "./screenCapture";
+import * as screenCapture from "./screenCapture.Constructor";
+import * as evtDef from "./eventDef";
 
 let windows: Electron.BrowserWindow[] = [];
 let appTray: Electron.Tray;
@@ -8,12 +9,22 @@ let timerClipboardPolling: number;
 app.on("ready", _ => {
 
     windows.push(screenCapture.screenConstructor(app));
-    addClipboardManager();
+    globalShortcut.register("Ctrl+Alt+1", _ => {
+        console.log("in register shortcut!");
+        // ipcMain.emit(evtDef.SCREENCAPTURE_CLICKED);
+        windows[0].webContents.send(evtDef.SCREENCAPTURE_CLICKED);
+    });
+
+    // addClipboardManager();
 });
 
 app.on("will-quit", _ => {
     globalShortcut.unregisterAll();
-    windows.forEach( win => win = null);
+    windows.forEach(win => win = null);
+});
+
+ipcMain.on(evtDef.MAIN_CONSOLE_LOG, (evt, message)  => {
+    console.log(message);
 });
 
 function addClipboardManager() {
@@ -65,11 +76,11 @@ function addClipboardManager() {
 
     function createMenuTemplate(stack: string[]): Electron.MenuItemOptions[] {
         const menuIfEmptyStack: Electron.MenuItemOptions[] = [
-                {
-                    label: "<empty>",
-                    enabled: false
-                }
-            ];
+            {
+                label: "<empty>",
+                enabled: false
+            }
+        ];
         let menuTemplate: Electron.MenuItemOptions[] = [];
 
         if (stack.length === 0) {
