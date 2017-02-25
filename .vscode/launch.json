@@ -5,23 +5,41 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "debug main electron",
             "type": "node",
             "request": "launch",
-            "name": "Lancer le programme",
             "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
             "windows": {
                 "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
             },
-            "program": "${workspaceRoot}\\src\\main.js",
+            "runtimeArgs": [
+                "--enable-logging"
+            ],
+            "program": "${workspaceRoot}/src/main.ts",
             "cwd": "${workspaceRoot}",
-            "outFiles": []
+            "sourceMaps": true,
+            "outFiles": [
+                "${workspaceRoot}/src"
+            ],
+            "console": "internalConsole",
+            "preLaunchTask": null
         },
         {
-            "type": "node",
-            "request": "attach",
-            "name": "Attacher au processus",
-            "port": 5858,
-            "outFiles": []
+            "name": "debug renderer electron",
+            "type": "chrome",
+            "request": "launch",
+            "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
+            "windows": {
+                "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
+            },
+            "runtimeArgs": [
+                "${workspaceRoot}",
+                "--enable-logging",
+                "--remote-debugging-port=9222"
+            ],
+            "webRoot": "${workspaceRoot}/src",
+            "sourceMaps": true,
+            "internalConsoleOptions": "openOnSessionStart"
         }
     ]
 }
