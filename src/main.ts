@@ -1,4 +1,5 @@
 import { app, Menu, ipcMain, Tray, BrowserWindow, clipboard, globalShortcut } from "electron";
+import * as screenCapture from "./screenCapture";
 
 let windows: Electron.BrowserWindow[] = [];
 let appTray: Electron.Tray;
@@ -6,28 +7,14 @@ let timerClipboardPolling: number;
 
 app.on("ready", _ => {
 
-    addScreenCaptureWindow();
+    windows.push(screenCapture.screenConstructor(app));
     addClipboardManager();
-
 });
 
 app.on("will-quit", _ => {
     globalShortcut.unregisterAll();
+    windows.forEach( win => win = null);
 });
-
-function addScreenCaptureWindow(): Electron.BrowserWindow {
-    let win = new BrowserWindow({
-
-    });
-
-    win.loadURL(`file://${__dirname}/screenCapture.html`);
-    win.on("closed", _ => {
-        console.log("screenCapture windows closed!");
-        win = null;
-    });
-
-    return win;
-}
 
 function addClipboardManager() {
     const STACK_LENGTH = 10;
