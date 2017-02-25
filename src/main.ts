@@ -1,6 +1,6 @@
 // import * as electron from "electron";
 
-import { app, Menu, ipcMain, Tray, BrowserWindow } from "electron";
+import { app, Menu, ipcMain, Tray, BrowserWindow, clipboard } from "electron";
 
 import { countDown } from "./countDown.service";
 
@@ -8,12 +8,16 @@ import { countDown } from "./countDown.service";
 // cconst ipc = electron.ipcMain;
 
 let windows: Electron.BrowserWindow[] = [];
+let appTray: Electron.Tray;
+// let timerClipboardPolling: NodeJS.Timer;
+let timerClipboardPolling: number;
 
 app.on("ready", _ => {
 
-    addTray();
+    // addTray(); -> see addClipboardManager
     addMenu();
     add3Windows();
+    addClipboardManager();
 
 });
 
@@ -88,8 +92,65 @@ function addWindow(): Electron.BrowserWindow {
 }
 
 function add3Windows() {
-    [1, 2, 3].forEach(_ => {
+    // [1, 2, 3].forEach(_ => {
+    [1].forEach(_ => {
         let win = addWindow();
         windows.push(win);
     });
 }
+
+function addClipboardManager() {
+    const STACK_LENGTH = 10;
+    let stack: string[] = [];
+
+    addTray();
+    checkClipboardPolling1sec(clipboard, clipboardChanged);
+
+    function clipboardChanged(text: string) {
+        stack = addToStack(text, stack);
+        console.log("stack:", stack);
+    }
+    function addTray() {
+        appTray = new Tray(__dirname + "\\..\\assets\\trayIcon.jpg");
+        appTray.setToolTip("Clipboard history");
+        let trayMenuTemplate: Electron.MenuItemOptions[] = [
+            {
+                label: "<empty>",
+                enabled: false
+            },
+            {
+                type: "separator"
+            },
+            {
+                label: "Quit",
+                click: _ => { app.quit(); }
+            }
+        ];
+        let trayMenu = Menu.buildFromTemplate(trayMenuTemplate);
+        appTray.setContextMenu(trayMenu);
+    }
+
+    function addToStack(item: string, stack: string[]): string[] {
+        return [item].concat(stack.length >= STACK_LENGTH ? stack.slice(0, stack.length - 1) : stack);
+    }
+
+
+    function checkClipboardPolling1sec(clipboard: Electron.Clipboard, onChangeCallback: Function) {
+        let cache = ""; // clipboard.readText();
+
+        // timerClipboardPolling = setInterval(checkClipboard(clipboard, onChangeCallback) , 1000);
+        // timerClipboardPolling = setInterval(checkClipboard , 1000);
+        setInterval(checkClipboard , 1000);
+
+        // function checkClipboard(clipboard: Electron.Clipboard, onChangeCallback: Function) {
+        function checkClipboard() {
+            let latest = clipboard.readText();
+            if (cache !== latest) {
+                cache = latest;
+                onChangeCallback(cache);
+            }
+
+        }
+    }
+}
+
