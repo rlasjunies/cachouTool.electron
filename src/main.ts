@@ -10,7 +10,7 @@ app.on("ready", _ => {
 
     windows.push(screenCapture.screenConstructor(app));
     globalShortcut.register("Ctrl+Alt+1", _ => {
-        console.log("in register shortcut!");
+        // console.log("in register shortcut!");
         // ipcMain.emit(evtDef.SCREENCAPTURE_CLICKED);
         windows[0].webContents.send(evtDef.SCREENCAPTURE_CLICKED);
     });

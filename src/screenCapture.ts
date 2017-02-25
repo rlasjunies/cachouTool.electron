@@ -2,7 +2,7 @@ import { ipcRenderer, desktopCapturer, screen } from "electron";
 import * as evtDef from "./eventDef";
 
 ipcRenderer.on(evtDef.SCREENCAPTURE_CLICKED, _ => {
-    consoleLogMain("SCREENCAPTURE_CLICKED dans renderer screen Capture");
+    // consoleLogMain("SCREENCAPTURE_CLICKED dans renderer screen Capture");
 
     getMainSource(desktopCapturer, screen, _ => {
         consoleLogMain("capture ok");
