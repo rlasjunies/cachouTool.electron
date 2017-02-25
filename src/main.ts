@@ -155,7 +155,8 @@ function addClipboardManager() {
             let menuItemTemplate: Electron.MenuItemOptions;
 
             menuItemTemplate = {
-                label: `${index} - ${formatMenuItem(stackItem)}`
+                label: `${index} - ${formatMenuItem(stackItem)}`,
+                click: _ => { clipboard.writeText(stackItem); }
             };
 
             return menuItemTemplate;
