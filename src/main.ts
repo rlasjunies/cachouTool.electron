@@ -118,7 +118,7 @@ function addClipboardManager() {
     };
 
     function addTrayMenu(stack: string[]) {
-        let trayMenuTemplate: Electron.MenuItemOptions[] =
+        const trayMenuTemplateInit: Electron.MenuItemOptions[] =
             [
                 {
                     type: "separator"
@@ -128,9 +128,9 @@ function addClipboardManager() {
                     click: _ => { app.quit(); }
                 }
             ];
-        trayMenuTemplate = createMenuTemplate(stack).concat(trayMenuTemplate);
+        const trayMenuTemplate = createMenuTemplate(stack).concat(trayMenuTemplateInit);
 
-        let trayMenu = Menu.buildFromTemplate(trayMenuTemplate);
+        const trayMenu = Menu.buildFromTemplate(trayMenuTemplate);
         appTray.setContextMenu(trayMenu);
     }
 
