@@ -1,22 +1,12 @@
-// import * as electron from "electron";
-
 import { app, Menu, ipcMain, Tray, BrowserWindow, clipboard, globalShortcut } from "electron";
-
-import { countDown } from "./countDown.service";
-
-// const app = electron.app;
-// cconst ipc = electron.ipcMain;
 
 let windows: Electron.BrowserWindow[] = [];
 let appTray: Electron.Tray;
-// let timerClipboardPolling: NodeJS.Timer;
 let timerClipboardPolling: number;
 
 app.on("ready", _ => {
 
-    // addTray(); -> see addClipboardManager
-    addMenu();
-    add3Windows();
+    addScreenCaptureWindow();
     addClipboardManager();
 
 });
@@ -25,82 +15,18 @@ app.on("will-quit", _ => {
     globalShortcut.unregisterAll();
 });
 
-ipcMain.on("countDownStartClicked", _ => {
-    console.log("countDownStart clicked");
+function addScreenCaptureWindow(): Electron.BrowserWindow {
+    let win = new BrowserWindow({
 
-    countDown(counterValue => {
-        // console.log("countDown callback");
-
-        windows.forEach(win => {
-            win.webContents.send("countDown", counterValue);
-        });
     });
-});
 
-function addTray() {
-    let tray = new Tray(__dirname + "\\..\\assets\\trayIcon.jpg");
-    tray.setToolTip("That a great demo");
-    let trayMenuTemplate: Electron.MenuItemOptions[] = [
-        {
-            label: "About"
-        },
-        {
-            label: "Quit",
-            click: _ => { app.quit(); }
-        }
-    ];
-    let trayMenu = Menu.buildFromTemplate(trayMenuTemplate);
-    tray.setContextMenu(trayMenu);
-}
-
-function addMenu() {
-    let menuTemplate: Electron.MenuItemOptions[] = [
-        {
-            label: app.getName(),
-            click: () => { console.log("menu clicked"); },
-            submenu: [
-                {
-                    label: "sub1",
-                    click: _ => {
-                        console.log("sub menu clicked");
-                    }
-                },
-                {
-                    type: "separator",
-                },
-                {
-                    label: "Quit",
-                    click: _ => {
-                        app.quit();
-                    },
-                    accelerator: "Win+Q"
-                }
-            ]
-
-        }
-    ];
-    let menu = Menu.buildFromTemplate(menuTemplate);
-    Menu.setApplicationMenu(menu);
-}
-
-function addWindow(): Electron.BrowserWindow {
-    let win = new BrowserWindow({});
-
-    win.loadURL(`file://${__dirname}/countDown.html`);
+    win.loadURL(`file://${__dirname}/screenCapture.html`);
     win.on("closed", _ => {
-        console.log("mainWindow closed");
+        console.log("screenCapture windows closed!");
         win = null;
     });
 
     return win;
-}
-
-function add3Windows() {
-    // [1, 2, 3].forEach(_ => {
-    [1].forEach(_ => {
-        let win = addWindow();
-        windows.push(win);
-    });
 }
 
 function addClipboardManager() {
