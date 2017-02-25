@@ -135,14 +135,16 @@ function addClipboardManager() {
     }
 
     function createMenuTemplate(stack: string[]): Electron.MenuItemOptions[] {
-        let menuTemplate: Electron.MenuItemOptions[] = [];
-        if (stack.length === 0) {
-            menuTemplate = [
+        const menuIfEmptyStack: Electron.MenuItemOptions[] = [
                 {
                     label: "<empty>",
                     enabled: false
                 }
             ];
+        let menuTemplate: Electron.MenuItemOptions[] = [];
+
+        if (stack.length === 0) {
+            menuTemplate = menuIfEmptyStack;
         } else {
             menuTemplate = stack.map(createMenuItemTemplate);
         }
