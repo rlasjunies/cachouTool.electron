@@ -1,6 +1,6 @@
 // import * as electron from "electron";
 
-import { app, Menu, ipcMain, Tray, BrowserWindow, clipboard } from "electron";
+import { app, Menu, ipcMain, Tray, BrowserWindow, clipboard, globalShortcut } from "electron";
 
 import { countDown } from "./countDown.service";
 
@@ -110,6 +110,18 @@ function addClipboardManager() {
     function clipboardChanged(text: string) {
         stack = addToStack(text, stack);
         addTrayMenu(stack);
+        registerShortcuts(globalShortcut, clipboard, stack);
+    }
+
+    function registerShortcuts(inGlobalShortcut: Electron.GlobalShortcut, inClipboard: Electron.Clipboard, stack: string[]) {
+        inGlobalShortcut.unregisterAll();
+        stack.forEach(registerShortcut);
+
+        function registerShortcut(stackItem: string, index: number) {
+            inGlobalShortcut.register(`Ctrl+Alt+${index}`, _ => {
+                inClipboard.writeText(stackItem);
+            });
+        }
     }
 
     function addTray() {
