@@ -21,6 +21,10 @@ app.on("ready", _ => {
 
 });
 
+app.on("will-quit", _ => {
+    globalShortcut.unregisterAll();
+});
+
 ipcMain.on("countDownStartClicked", _ => {
     console.log("countDownStart clicked");
 
