@@ -101,6 +101,7 @@ function add3Windows() {
 
 function addClipboardManager() {
     const STACK_LENGTH = 10;
+    const MENU_ITEM_MAC_LENGTH = 20;
     let stack: string[] = [];
 
     addTray();
@@ -108,39 +109,71 @@ function addClipboardManager() {
 
     function clipboardChanged(text: string) {
         stack = addToStack(text, stack);
-        console.log("stack:", stack);
+        addTrayMenu(stack);
     }
+
     function addTray() {
         appTray = new Tray(__dirname + "\\..\\assets\\trayIcon.jpg");
         appTray.setToolTip("Clipboard history");
-        let trayMenuTemplate: Electron.MenuItemOptions[] = [
-            {
-                label: "<empty>",
-                enabled: false
-            },
-            {
-                type: "separator"
-            },
-            {
-                label: "Quit",
-                click: _ => { app.quit(); }
-            }
-        ];
+    };
+
+    function addTrayMenu(stack: string[]) {
+        let trayMenuTemplate: Electron.MenuItemOptions[] =
+            [
+                {
+                    type: "separator"
+                },
+                {
+                    label: "Quit",
+                    click: _ => { app.quit(); }
+                }
+            ];
+        trayMenuTemplate = createMenuTemplate(stack).concat(trayMenuTemplate);
+
         let trayMenu = Menu.buildFromTemplate(trayMenuTemplate);
         appTray.setContextMenu(trayMenu);
+    }
+
+    function createMenuTemplate(stack: string[]): Electron.MenuItemOptions[] {
+        let menuTemplate: Electron.MenuItemOptions[] = [];
+        if (stack.length === 0) {
+            menuTemplate = [
+                {
+                    label: "<empty>",
+                    enabled: false
+                }
+            ];
+        } else {
+            menuTemplate = stack.map(createMenuItemTemplate);
+        }
+
+        return menuTemplate;
+
+        function createMenuItemTemplate(stackItem: string, index: number) {
+            let menuItemTemplate: Electron.MenuItemOptions;
+
+            menuItemTemplate = {
+                label: `${index} - ${formatMenuItem(stackItem)}`
+            };
+
+            return menuItemTemplate;
+        }
+    }
+
+    function formatMenuItem(stackItem: string): string {
+        return stackItem.length >= MENU_ITEM_MAC_LENGTH ? stackItem.slice(0, MENU_ITEM_MAC_LENGTH) + "..." : stackItem;
     }
 
     function addToStack(item: string, stack: string[]): string[] {
         return [item].concat(stack.length >= STACK_LENGTH ? stack.slice(0, stack.length - 1) : stack);
     }
 
-
     function checkClipboardPolling1sec(clipboard: Electron.Clipboard, onChangeCallback: Function) {
         let cache = ""; // clipboard.readText();
 
         // timerClipboardPolling = setInterval(checkClipboard(clipboard, onChangeCallback) , 1000);
         // timerClipboardPolling = setInterval(checkClipboard , 1000);
-        setInterval(checkClipboard , 1000);
+        setInterval(checkClipboard, 1000);
 
         // function checkClipboard(clipboard: Electron.Clipboard, onChangeCallback: Function) {
         function checkClipboard() {
