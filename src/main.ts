@@ -13,9 +13,10 @@ app.on("ready", _ => {
     globalShortcut.register("Ctrl+Alt+1", _ => {
         // console.log("in register shortcut!");
         // ipcMain.emit(evtDef.SCREENCAPTURE_CLICKED);
-        windows[0].webContents.send(evtDef.SCREENCAPTURE_CLICKED, path.join(__dirname, "screenshots") );
+        windows[0].webContents.send(evtDef.SCREENCAPTURE_CLICKED, path.join(__dirname, "screenshots"));
     });
 
+    addTray();
     addClipboardManager();
 });
 
@@ -25,7 +26,7 @@ app.on("will-quit", _ => {
     appTray.destroy();
 });
 
-ipcMain.on(evtDef.MAIN_CONSOLE_LOG, (evt, message)  => {
+ipcMain.on(evtDef.MAIN_CONSOLE_LOG, (evt, message) => {
     console.log(message);
 });
 
@@ -34,7 +35,6 @@ function addClipboardManager() {
     const MENU_ITEM_MAC_LENGTH = 20;
     let stack: string[] = [];
 
-    addTray();
     checkClipboardPolling1sec(clipboard, clipboardChanged);
 
     function clipboardChanged(text: string) {
@@ -42,22 +42,6 @@ function addClipboardManager() {
         addTrayMenu(stack);
         // registerShortcuts(globalShortcut, clipboard, stack);
     }
-
-    function registerShortcuts(inGlobalShortcut: Electron.GlobalShortcut, inClipboard: Electron.Clipboard, stack: string[]) {
-        inGlobalShortcut.unregisterAll();
-        stack.forEach(registerShortcut);
-
-        function registerShortcut(stackItem: string, index: number) {
-            inGlobalShortcut.register(`Ctrl+Alt+${index}`, _ => {
-                inClipboard.writeText(stackItem);
-            });
-        }
-    }
-
-    function addTray() {
-        appTray = new Tray(__dirname + "\\..\\assets\\trayIcon.jpg");
-        appTray.setToolTip("Clipboard history");
-    };
 
     function addTrayMenu(stack: string[]) {
         const trayMenuTemplateInit: Electron.MenuItemOptions[] =
@@ -75,6 +59,19 @@ function addClipboardManager() {
         const trayMenu = Menu.buildFromTemplate(trayMenuTemplate);
         appTray.setContextMenu(trayMenu);
     }
+
+    function registerShortcuts(inGlobalShortcut: Electron.GlobalShortcut, inClipboard: Electron.Clipboard, stack: string[]) {
+        inGlobalShortcut.unregisterAll();
+        stack.forEach(registerShortcut);
+
+        function registerShortcut(stackItem: string, index: number) {
+            inGlobalShortcut.register(`Ctrl+Alt+${index}`, _ => {
+                inClipboard.writeText(stackItem);
+            });
+        }
+    }
+
+
 
     function createMenuTemplate(stack: string[]): Electron.MenuItemOptions[] {
         const menuIfEmptyStack: Electron.MenuItemOptions[] = [
@@ -132,3 +129,8 @@ function addClipboardManager() {
     }
 }
 
+function addTray() {
+    appTray = new Tray(__dirname + "\\..\\assets\\trayIcon.jpg");
+    appTray.setToolTip("Clipboard history");
+
+};
