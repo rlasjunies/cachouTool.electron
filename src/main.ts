@@ -1,6 +1,7 @@
 import { app, Menu, ipcMain, Tray, BrowserWindow, clipboard, globalShortcut } from "electron";
-import * as screenCapture from "./screenCapture.Constructor";
+import * as screenCapture from "./screenCapture.constructor";
 import * as evtDef from "./eventDef";
+import * as path from "path";
 
 let windows: Electron.BrowserWindow[] = [];
 let appTray: Electron.Tray;
@@ -12,7 +13,7 @@ app.on("ready", _ => {
     globalShortcut.register("Ctrl+Alt+1", _ => {
         // console.log("in register shortcut!");
         // ipcMain.emit(evtDef.SCREENCAPTURE_CLICKED);
-        windows[0].webContents.send(evtDef.SCREENCAPTURE_CLICKED);
+        windows[0].webContents.send(evtDef.SCREENCAPTURE_CLICKED, path.join(__dirname, "screenshots") );
     });
 
     addClipboardManager();
