@@ -1,16 +1,19 @@
 {
   "name": "electron",
-  "productName": "electron demo",
+  "productName": "cachouTool",
   "version": "1.0.0",
   "main": "src/main.js",
   "license": "MIT",
   "scripts": {
-      "start": "electron .",
-      "tsc": "tsc --watch"
+    "package":"rimraf cachouTool- && electron-packager . --platform=win32 --arch=x64 --icon=src/app.ico",
+    "start": "electron .",
+    "tsc": "tsc --watch"
   },
   "devDependencies": {
     "@types/electron": "^1.4.32",
+    "electron-packager": "^8.5.2",
     "electron-prebuilt": "^1.4.13",
+    "rimraf": "^2.6.1",
     "tslint": "^4.4.2",
     "typescript": "^2.2.1"
   }

@@ -2,6 +2,7 @@
 node_modules
 npm-debug.log*
 screenshots
+cachouTool-win32-x64
 
 #TypeScript
 *.js
