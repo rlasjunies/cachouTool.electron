@@ -22,6 +22,6 @@ export function getMainSource(inDesktopCapturer: Electron.DesktopCapturer, inScr
 export function writeScreenshot(png: Buffer, filePath: string) {
     fs.writeFile(filePath, png, err => {
         if ( err ) consoleLogMain(`Failed to write screen: ${err.message}`);
-        consoleLogMain("screen shot taken");
+        consoleLogMain(`[screenCapture.service] screen shot taken:${filePath}`);
     });
 }
