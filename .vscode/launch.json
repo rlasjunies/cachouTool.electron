@@ -8,6 +8,9 @@
             "name": "debug main electron",
             "type": "node",
             "request": "launch",
+            "program": "${workspaceRoot}/src/main.ts",
+            "args": [],
+            "cwd": "${workspaceRoot}/src",
             "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
             "windows": {
                 "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
@@ -15,13 +18,14 @@
             "runtimeArgs": [
                 "--enable-logging"
             ],
-            "program": "${workspaceRoot}/src/main.ts",
-            "cwd": "${workspaceRoot}",
-            "sourceMaps": true,
             "outFiles": [
-                "${workspaceRoot}/src"
+                "${workspaceRoot}/src/**/*.js"
             ],
-            "console": "internalConsole",
+            "env": {},
+            "stopOnEntry": false,
+            "sourceMaps": true,
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "openOnSessionStart",
             "preLaunchTask": null
         },
         {
