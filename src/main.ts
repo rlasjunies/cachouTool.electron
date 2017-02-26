@@ -15,12 +15,13 @@ app.on("ready", _ => {
         windows[0].webContents.send(evtDef.SCREENCAPTURE_CLICKED);
     });
 
-    // addClipboardManager();
+    addClipboardManager();
 });
 
 app.on("will-quit", _ => {
     globalShortcut.unregisterAll();
     windows.forEach(win => win = null);
+    appTray.destroy();
 });
 
 ipcMain.on(evtDef.MAIN_CONSOLE_LOG, (evt, message)  => {
@@ -38,7 +39,7 @@ function addClipboardManager() {
     function clipboardChanged(text: string) {
         stack = addToStack(text, stack);
         addTrayMenu(stack);
-        registerShortcuts(globalShortcut, clipboard, stack);
+        // registerShortcuts(globalShortcut, clipboard, stack);
     }
 
     function registerShortcuts(inGlobalShortcut: Electron.GlobalShortcut, inClipboard: Electron.Clipboard, stack: string[]) {
