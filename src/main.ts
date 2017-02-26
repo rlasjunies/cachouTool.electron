@@ -11,9 +11,7 @@ app.on("ready", _ => {
 
     windows.push(screenCapture.screenConstructor(app));
     globalShortcut.register("Ctrl+Alt+1", _ => {
-        // console.log("in register shortcut!");
-        // ipcMain.emit(evtDef.SCREENCAPTURE_CLICKED);
-        windows[0].webContents.send(evtDef.SCREENCAPTURE_CLICKED, path.join(__dirname, "screenshots"));
+        windows[0].webContents.send(evtDef.SCREENCAPTURE_CLICKED, path.join(app.getAppPath(), "screenshots"));
     });
 
     addTray();
