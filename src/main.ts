@@ -1,6 +1,6 @@
 import { app, Menu, ipcMain, Tray, BrowserWindow, clipboard, globalShortcut } from "electron";
-import * as screenCapture from "./screenCapture.constructor";
-import * as evtDef from "./eventDef";
+import * as screenCapture from "./screenCapture/screenCapture.constructor";
+import * as evtDef from "./share/eventDef";
 import * as path from "path";
 
 let windows: Electron.BrowserWindow[] = [];

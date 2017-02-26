@@ -1,8 +1,8 @@
 import { ipcRenderer, desktopCapturer, screen } from "electron";
-import * as evtDef from "./eventDef";
+import * as evtDef from "../share/eventDef";
 import * as path from "path";
 import * as fs from "fs";
-import { consoleLogMain } from "./helper.renderer";
+import { consoleLogMain } from "../share/helper.renderer";
 import * as srv from "./screenCapture.service";
 
 ipcRenderer.on(evtDef.SCREENCAPTURE_CLICKED, onCapture);
