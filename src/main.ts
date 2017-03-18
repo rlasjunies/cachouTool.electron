@@ -1,6 +1,7 @@
 import { app, Menu, ipcMain, Tray, BrowserWindow, clipboard, globalShortcut } from "electron";
 import * as screenCapture from "./screenCapture/screenCapture.constructor";
 import * as webview from "./webview/wv.constructor";
+import * as ytDownload from "./youtubeDownloadView/youtubeDownload.constructor";
 import * as evtDef from "./share/eventDef";
 import * as path from "path";
 
@@ -17,6 +18,8 @@ app.on("ready", empty => {
     // // win = createWinLocally("https://app.pluralsight.com/library/courses/electron-fundamentals/table-of-contents");
     // windows.push(win);
 
+    const ytdWin = ytDownload.screenConstructor(app);
+    windows.push(ytdWin);
 
     // win.webContents.send("test", "4" + "tyuiop");
 
@@ -34,7 +37,7 @@ app.on("ready", empty => {
 
 app.on("will-quit", _ => {
     globalShortcut.unregisterAll();
-    windows.forEach(window => window = null );
+    windows.forEach(window => window = null);
     appTray.destroy();
 });
 
@@ -45,10 +48,10 @@ ipcMain.on(evtDef.MAIN_CONSOLE_LOG, (evt, message) => {
 ipcMain.on(evtDef.WEBVIEW_NEW_WINDOW_REQUESTED, (evt, s) => {
     console.log("[main] new-window-request", s);
 
-                        let newBrowserWindow = webview.screenConstructor(s);
-                    // windows.push(win);
-                    // ipcMain.emit("test", "texte");
-                    // newBrowserWindow.webContents.send(evtDef.WEBVIEW_NAVIGATE_TO, s);
+    let newBrowserWindow = webview.screenConstructor(s);
+    // windows.push(win);
+    // ipcMain.emit("test", "texte");
+    // newBrowserWindow.webContents.send(evtDef.WEBVIEW_NAVIGATE_TO, s);
 });
 
 
@@ -124,8 +127,8 @@ function addTrayMenu(stack: string[]) {
             , {
                 label: "Youtube download",
                 click: () => {
-                    // const win = webview.screenConstructor("https://app.pluralsight.com/library/courses/electron-fundamentals/table-of-contents");
-                    // windows.push(win);
+                    const ytdWin = ytDownload.screenConstructor(app);
+                    windows.push(ytdWin);
                 }
             }
             , {
