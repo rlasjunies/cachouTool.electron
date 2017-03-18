@@ -1,5 +1,6 @@
 import { app, Menu, ipcMain, Tray, BrowserWindow, clipboard, globalShortcut } from "electron";
 import * as screenCapture from "./screenCapture/screenCapture.constructor";
+import * as webview from "./webview/wv.constructor";
 import * as evtDef from "./share/eventDef";
 import * as path from "path";
 
@@ -7,26 +8,49 @@ let windows: Electron.BrowserWindow[] = [];
 let appTray: Electron.Tray;
 let timerClipboardPolling: number;
 
-app.on("ready", _ => {
+let win: Electron.BrowserWindow;
+app.on("ready", empty => {
 
-    windows.push(screenCapture.screenConstructor(app));
+    // windows.push(screenCapture.screenConstructor(app));
+
+    // win = webview.screenConstructor("https://app.pluralsight.com/library/courses/electron-fundamentals/table-of-contents");
+    // // win = createWinLocally("https://app.pluralsight.com/library/courses/electron-fundamentals/table-of-contents");
+    // windows.push(win);
+
+
+    // win.webContents.send("test", "4" + "tyuiop");
+
     globalShortcut.register("Ctrl+Alt+1", _ => {
+        // console.log(`app.getAppPath():${app.getAppPath()}`);
+
+        // TODO: configure the folder where is stored the files
         windows[0].webContents.send(evtDef.SCREENCAPTURE_CLICKED, path.join(app.getAppPath(), "screenshots"));
     });
 
     addTray();
+    addTrayMenu([]);
     addClipboardManager();
 });
 
 app.on("will-quit", _ => {
     globalShortcut.unregisterAll();
-    windows.forEach(win => win = null);
+    windows.forEach(window => window = null );
     appTray.destroy();
 });
 
 ipcMain.on(evtDef.MAIN_CONSOLE_LOG, (evt, message) => {
     console.log(message);
 });
+
+ipcMain.on(evtDef.WEBVIEW_NEW_WINDOW_REQUESTED, (evt, s) => {
+    console.log("[main] new-window-request", s);
+
+                        let newBrowserWindow = webview.screenConstructor(s);
+                    // windows.push(win);
+                    // ipcMain.emit("test", "texte");
+                    // newBrowserWindow.webContents.send(evtDef.WEBVIEW_NAVIGATE_TO, s);
+});
+
 
 function addClipboardManager() {
     const STACK_LENGTH = 10;
@@ -40,9 +64,9 @@ function addClipboardManager() {
         // registerShortcuts(globalShortcut, clipboard, stack);
     }
 
-    function registerShortcuts(inGlobalShortcut: Electron.GlobalShortcut, inClipboard: Electron.Clipboard, stack: string[]) {
+    function registerShortcuts(inGlobalShortcut: Electron.GlobalShortcut, inClipboard: Electron.Clipboard, inStack: string[]) {
         inGlobalShortcut.unregisterAll();
-        stack.forEach(registerShortcut);
+        inStack.forEach(registerShortcut);
 
         function registerShortcut(stackItem: string, index: number) {
             inGlobalShortcut.register(`Ctrl+Alt+${index}`, _ => {
@@ -53,8 +77,8 @@ function addClipboardManager() {
 
 
 
-    function addToStack(item: string, stack: string[]): string[] {
-        return [item].concat(stack.length >= STACK_LENGTH ? stack.slice(0, stack.length - 1) : stack);
+    function addToStack(item: string, inStack: string[]): string[] {
+        return [item].concat(inStack.length >= STACK_LENGTH ? inStack.slice(0, inStack.length - 1) : inStack);
     }
 
     function checkClipboardPolling1sec(clipboard: Electron.Clipboard, onChangeCallback: Function) {
@@ -89,8 +113,32 @@ function addTrayMenu(stack: string[]) {
         [
             {
                 type: "separator"
-            },
-            {
+            }
+            , {
+                label: "Create webView",
+                click: () => {
+                    // const win = webview.screenConstructor("https://app.pluralsight.com/library/courses/electron-fundamentals/table-of-contents");
+                    // windows.push(win);
+                }
+            }
+            , {
+                label: "Youtube download",
+                click: () => {
+                    // const win = webview.screenConstructor("https://app.pluralsight.com/library/courses/electron-fundamentals/table-of-contents");
+                    // windows.push(win);
+                }
+            }
+            , {
+                label: "Ping",
+                click: () => {
+                    // const win = webview.screenConstructor("https://app.pluralsight.com/library/courses/electron-fundamentals/table-of-contents");
+                    // windows.push(win);
+                    // ipcMain.emit("test", "texte");
+                    // win.webContents.send("navigate-to", "https://app.pluralsight.com/library/courses/electron-fundamentals/table-of-contents");
+                    win.webContents.send(evtDef.WEBVIEW_NAVIGATE_TO, "https://app.pluralsight.com/library/courses/electron-fundamentals/table-of-contents");
+                }
+            }
+            , {
                 label: "Quit",
                 click: _ => { app.quit(); }
             }
@@ -100,7 +148,7 @@ function addTrayMenu(stack: string[]) {
     const trayMenu = Menu.buildFromTemplate(trayMenuTemplate);
     appTray.setContextMenu(trayMenu);
 
-    function createMenuTemplate(stack: string[]): Electron.MenuItemOptions[] {
+    function createMenuTemplate(inStack: string[]): Electron.MenuItemOptions[] {
         const menuIfEmptyStack: Electron.MenuItemOptions[] = [
             {
                 label: "<empty>",
@@ -109,10 +157,10 @@ function addTrayMenu(stack: string[]) {
         ];
         let menuTemplate: Electron.MenuItemOptions[] = [];
 
-        if (stack.length === 0) {
+        if (inStack.length === 0) {
             menuTemplate = menuIfEmptyStack;
         } else {
-            menuTemplate = stack.map(createMenuItemTemplate);
+            menuTemplate = inStack.map(createMenuItemTemplate);
         }
 
         return menuTemplate;
@@ -132,4 +180,6 @@ function addTrayMenu(stack: string[]) {
     function formatMenuItem(stackItem: string): string {
         return stackItem.length >= MENU_ITEM_MAC_LENGTH ? stackItem.slice(0, MENU_ITEM_MAC_LENGTH) + "..." : stackItem;
     }
-}
+};
+
+
