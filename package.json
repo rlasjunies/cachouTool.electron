@@ -5,7 +5,7 @@
   "main": "src/main.js",
   "license": "MIT",
   "scripts": {
-    "package":"rimraf cachouTool-* && electron-packager . --platform=win32 --arch=x64 --icon=src/app.ico",
+    "package": "rimraf cachouTool-* && electron-packager . --platform=win32 --arch=x64 --icon=src/app.ico",
     "start": "electron .",
     "tsc": "tsc --watch"
   },
@@ -16,5 +16,13 @@
     "rimraf": "^2.6.1",
     "tslint": "^4.4.2",
     "typescript": "^2.2.1"
+  },
+  "dependencies": {
+    "@types/cheerio": "^0.22.0",
+    "@types/jquery": "^2.0.41",
+    "@types/request": "^0.0.41",
+    "cheerio": "^0.22.0",
+    "jquery": "^3.2.0",
+    "request": "^2.81.0"
   }
 }
