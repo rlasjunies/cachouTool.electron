@@ -3,47 +3,49 @@
 
 <head>
     <title>Youtube-mp3</title>
-    <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
-    <link rel="stylesheet" href="style/style.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-
+    <div>
         <input type="text" id="titleToPlay" value="C:\Users\lasjunie\Downloads\Deorro x Chris Brown - Five More Hours (Official Video).mp3">
         <button id="play">play</button>
-        
-    <div class="titlebar">
-        <audio id="audio">
-            <source src="audio/s.mp3" type="audio/mpeg">
-        </audio>
-        <div class="buttons">
-            <div title="close" class="close" id='close-btn'>
-                <a class="closebutton" href="#"><span><strong></strong></span></a>
-                <!-- close button link -->
+
+        <div class="titlebar">
+            <audio id="audio">
+                <source src="audio/s.mp3" type="audio/mpeg">
+            </audio>
+            <div class="buttons">
+                <div title="close" class="close" id='close-btn'>
+                    <a class="closebutton" href="#"><span><strong></strong></span></a>
+                    <!-- close button link -->
+                </div>
+                <div title="minimize" class="minimize" id="min-btn">
+                    <a class="minimizebutton" href="#"><span><strong></strong></span></a>
+                    <!-- minimize button link -->
+                </div>
+                <div title="This app was mad by MEDZED" class="zoom">
+                    <a class="zoombutton" href="#"><span><strong></strong></span></a>
+                    <!-- zoom button link -->
+                </div>
             </div>
-            <div title="minimize" class="minimize" id="min-btn">
-                <a class="minimizebutton" href="#"><span><strong></strong></span></a>
-                <!-- minimize button link -->
-            </div>
-            <div title="This app was mad by MEDZED" class="zoom">
-                <a class="zoombutton" href="#"><span><strong></strong></span></a>
-                <!-- zoom button link -->
+            <input type="text" class="textfield" name="url" value="https://youtu.be/j3CaHeakZF4?list=PLSgNzqH7e21i1YzddWp-1EyIno6gCemeP"
+                id="url">
+            <input id='key' type="text" style='display: none;' value='no key'>
+        </div>
+
+
+        <div id="results">
+            <div id="help">
+                Past a valid youtube link..
             </div>
         </div>
-        <input type="text" class="textfield" name="url"
-            value="https://youtu.be/j3CaHeakZF4?list=PLSgNzqH7e21i1YzddWp-1EyIno6gCemeP" id="url" >
-        <input id='key' type="text" style='display: none;' value='no key'>
+        <div id="loader"></div>
     </div>
-
-
-    <div id="results">
-        <div id="help">
-            Past a valid youtube link..
-        </div>
+    <div>
+        <div><button>back</button></div>
+    <webview id="webview" src="https://www.youtube.fr"></webview>
     </div>
-    <div id="loader"></div>
-
-
     <script>
         require("./youtubeDownload.renderer.js")
     </script>

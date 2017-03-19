@@ -49,9 +49,15 @@ onload = (evt: Event) => {
     };
 
     eltPlay.onclick = (event: MouseEvent) => {
-        eltAudio.src = "file://" + eltTitleToPlay.value;
-        eltAudio.play();
+
+        if (eltAudio.paused) {
+            eltAudio.src = "file://" + eltTitleToPlay.value;
+            eltAudio.play();
+        } else {
+            eltAudio.pause();
+        }
     };
+
 
     lpr.consoleLogMain("youtubeDownload.renderer onLoad!");
     let key = eltKey.value;
@@ -134,7 +140,7 @@ function downloadReady() {
     try {
         eltDownload.onclick = (evt: MouseEvent) => {
             window.webContents.session.on("will-download", (event, item, webContents) => {
-                    let fullName = item.getSavePath();
+                let fullName = item.getSavePath();
                 item.on("updated", (e, state) => {
 
                     if (state === "interrupted") {
@@ -201,14 +207,14 @@ function parseScriptTagToFoundApiKey(i: number, element: CheerioElement) {
     // a = $(this);
     // title = a.text();
     let title = (<HTMLScriptElement>(<any>element)).title;
-    let str = title.replace(/['"]+/g, ``);
-    let n = str.search("apikey");
-    // if (n === -1 || n === 1 || n === 0 || n === false) { }
-    if (n === -1 || n === 1 || n === 0) { }
-    else {
-        let b = str.substr(n + 7);
-        let apikey = b.slice(0, b.indexOf("}"));
-        eltKey.value = apikey;
-    }
+    // let str = title.replace(/['"]+/g, ``);
+    // let n = str.search("apikey");
+    // // if (n === -1 || n === 1 || n === 0 || n === false) { }
+    // if (n === -1 || n === 1 || n === 0) { }
+    // else {
+    //     let b = str.substr(n + 7);
+    //     let apikey = b.slice(0, b.indexOf("}"));
+    //     eltKey.value = apikey;
+    // }
 }
 

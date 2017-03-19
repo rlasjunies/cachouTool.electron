@@ -8,11 +8,13 @@ import * as path from "path";
 let windows: Electron.BrowserWindow[] = [];
 let appTray: Electron.Tray;
 let timerClipboardPolling: number;
+let screenCaptureWin: Electron.BrowserWindow;
 
 let win: Electron.BrowserWindow;
 app.on("ready", empty => {
 
-    // windows.push(screenCapture.screenConstructor(app));
+     screenCaptureWin = screenCapture.screenConstructor(app);
+     windows.push(screenCaptureWin);
 
     // win = webview.screenConstructor("https://app.pluralsight.com/library/courses/electron-fundamentals/table-of-contents");
     // // win = createWinLocally("https://app.pluralsight.com/library/courses/electron-fundamentals/table-of-contents");
@@ -27,7 +29,9 @@ app.on("ready", empty => {
         // console.log(`app.getAppPath():${app.getAppPath()}`);
 
         // TODO: configure the folder where is stored the files
-        windows[0].webContents.send(evtDef.SCREENCAPTURE_CLICKED, path.join(app.getAppPath(), "screenshots"));
+        // TODO: 
+        // windows[0].webContents.send(evtDef.SCREENCAPTURE_CLICKED, path.join(app.getAppPath(), "screenshots"));
+        screenCaptureWin.webContents.send(evtDef.SCREENCAPTURE_CLICKED, path.join(app.getAppPath(), "screenshots"));
     });
 
     addTray();
