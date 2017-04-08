@@ -15,7 +15,7 @@
     "electron-prebuilt": "^1.4.13",
     "rimraf": "^2.6.1",
     "tslint": "^4.4.2",
-    "typescript": "^2.2.1"
+    "typescript": "^2.2.2"
   },
   "dependencies": {
     "@types/cheerio": "^0.22.0",
