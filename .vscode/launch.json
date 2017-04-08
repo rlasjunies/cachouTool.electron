@@ -7,6 +7,7 @@
         {
             "name": "debug main electron",
             "type": "node",
+            "protocol": "auto",
             "request": "launch",
             "program": "${workspaceRoot}/src/main.ts",
             "args": [],
@@ -41,9 +42,8 @@
                 "--enable-logging",
                 "--remote-debugging-port=9222"
             ],
-            "webRoot": "${workspaceRoot}/src",
-            "sourceMaps": true,
-            "internalConsoleOptions": "openOnSessionStart"
+            "webRoot": "${workspaceRoot}",
+            "sourceMaps": true
         }
     ]
 }
