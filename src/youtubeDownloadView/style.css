@@ -13,3 +13,7 @@ webview {
   width: 100%;
   height: calc(100vh - 165px)
 }
+
+.fullWidth {
+    width: 100%;
+}

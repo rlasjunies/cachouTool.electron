@@ -40,7 +40,7 @@ export function screenConstructor(url: string): Electron.BrowserWindow {
     });
     // ipcMain.emit("test", "1" + url);
     browserWindow.loadURL(`file://${__dirname}/wv.template.html`);
-    browserWindow.openDevTools();
+    // browserWindow.openDevTools();
     browserWindow.webContents.send("navigate-to", url);
     // win.webContents.send("test", "https://app.pluralsight.com/library/courses/electron-fundamentals/table-of-contents");
 return browserWindow;

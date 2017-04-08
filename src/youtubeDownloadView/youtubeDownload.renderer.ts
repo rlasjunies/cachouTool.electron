@@ -21,8 +21,9 @@ let eltAudio: HTMLAudioElement;
 let eltDownload: HTMLButtonElement;
 let eltTitleToPlay: HTMLInputElement;
 let eltPlay: HTMLButtonElement;
-
-lpr.consoleLogMain("youtubeDownload.renderer loaded!");
+let eltWebBack: HTMLButtonElement;
+let eltWebView: Electron.WebViewElement;
+let eltWebViewUrl: HTMLInputElement;
 
 onload = (evt: Event) => {
 
@@ -32,7 +33,9 @@ onload = (evt: Event) => {
     eltAudio = (<HTMLAudioElement>document.getElementById("audio"));
     eltTitleToPlay = (<HTMLInputElement>document.getElementById("titleToPlay"));
     eltPlay = (<HTMLButtonElement>document.getElementById("play"));
-
+    eltWebBack = (<HTMLButtonElement>document.getElementById("webBack"));
+    eltWebView = (<Electron.WebViewElement>document.getElementById("webview"));
+    eltWebViewUrl = (<HTMLInputElement>document.getElementById("webViewUrl"));
 
     eltUrl.onkeypress = (event: KeyboardEvent) => {
         if (event.keyCode === 13) {
@@ -58,8 +61,19 @@ onload = (evt: Event) => {
         }
     };
 
+    eltWebBack.onclick = ( event: MouseEvent) => {
+        eltWebView.goBack();
+    };
 
-    lpr.consoleLogMain("youtubeDownload.renderer onLoad!");
+    // eltWebView.addEventListener("load-commit", (event: Electron.WebViewElement.LoadCommitEvent) => {
+    //     eltWebViewUrl.value = event.url;
+    // });
+
+    eltWebView.addEventListener("did-navigate-in-page", (event) => {
+        ipcRenderer.send(evtDef.YOUTUBE_NAVIGATE, event.url);
+        eltWebViewUrl.value = event.url;
+    });
+
     let key = eltKey.value;
     testKey();
 
@@ -69,6 +83,8 @@ onload = (evt: Event) => {
     eltUrl.focus();
     let url = eltUrl.value;
     validateUrl(url);
+
+    lpr.consoleLogMain("youtubeDownload.renderer onLoad!");
 };
 
 // function runScript_paste(insUrl: string) {
@@ -79,7 +95,7 @@ function validateUrl(insUrl: string) {
     let urlParsed = insUrl.match(/(?:https?:\/{2})?(?:w{3}\.)?youtu(?:be)?\.(?:com|be)(?:\/watch\?v=|\/)([^\s&]+)/);
     let videoid = urlParsed[1];
     if (videoid != null) {
-        ajax_get_json(videoid, eltKey.value);
+        checkYTMp3IfCanDownload(videoid, eltKey.value);
     } else {
         // $("input").css("background-color", "rgba(200,20,0,0.3)");
         eltUrl.style.backgroundColor = "rgba(200,20,0,0.3)";
@@ -95,8 +111,8 @@ function testKey() {
 
 }
 
-function ajax_get_json(id: string, key: string) {
-    let yt = id;
+function checkYTMp3IfCanDownload(id: string, key: string) {
+    // let yt = id;
 
     $.getJSON("http://www.yt-mp3.com/fetch?v=" + id + "&apikey=" + key, function (yt_data) {
         if (yt_data.status === "error") {
@@ -108,7 +124,7 @@ function ajax_get_json(id: string, key: string) {
         if (yt_data.status === "timeout") {
             eltResults.innerHTML = "<p style='top: 40vh;' id='Down' >Video is in a queue, please wait  <img style='line-hight:20px;' src='img/loader.gif' width='13px' height='13px' /></p>";
             setTimeout(function () {
-                ajax_get_json(id, key);
+                checkYTMp3IfCanDownload(id, key);
             }, 5000);
         } else {
             // eltResults.innerHTML = "";
@@ -123,7 +139,7 @@ function ajax_get_json(id: string, key: string) {
                     eltResults.innerHTML = "<p style='top: 40vh;' id='Down' >Video is in a queue, please wait  <img style='line-hight:20px;' src='img/loader.gif' width='13px' height='50px' /></p>";
 
                     setTimeout(function () {
-                        ajax_get_json(id, key);
+                        checkYTMp3IfCanDownload(id, key);
                     }, 5000);
                 }
             } catch (e) {
@@ -133,6 +149,7 @@ function ajax_get_json(id: string, key: string) {
         }
     });
 }
+
 
 function downloadReady() {
     let window = remote.getCurrentWindow();

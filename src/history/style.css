@@ -1,0 +1,46 @@
+body {
+  background-color: #1094F6;
+  color: white;
+  font-family: "Ubuntu";
+  /*height:100%;
+  width:100%;*/
+}
+/*#Content {
+  height: calc(100% - 88px);
+}*/
+
+webview {
+  width: 100%;
+  height: calc(100vh - 165px)
+}
+
+.fullWidth {
+    width: 100%;
+}
+
+.listOfSong{
+    display: flex;
+    flex-direction: column-reverse;
+}
+
+.songItem{
+    display: flex;
+    flex-direction: row;
+}
+
+.songImg {
+    background: blue;
+    width: 196px;
+    height: 100px;
+}
+
+.songDescription{
+    flex-direction: column;
+}
+.songTitle{
+    font-size: 15;
+}
+
+.songArtist{
+    font-size: 8;
+}

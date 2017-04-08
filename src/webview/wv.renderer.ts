@@ -1,4 +1,4 @@
-    import * as lprr from "../share/helper.renderer";
+import * as lprr from "../share/helper.renderer";
 import { ipcRenderer } from "electron";
 import * as evtDef from "../share/eventDef";
 
@@ -6,7 +6,7 @@ ipcRenderer.on(evtDef.WEBVIEW_NAVIGATE_TO, webViewNagivateTo);
 
 let webView: Electron.WebViewElement = <Electron.WebViewElement>document.getElementById("webview");
 webView.addEventListener("did-start-loading", function (e) {
-    webView.openDevTools();
+    // webView.openDevTools();
 });
 
 function webViewNagivateTo(evt: Electron.IpcRendererEvent, s) {

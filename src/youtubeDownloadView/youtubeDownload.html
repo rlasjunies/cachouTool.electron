@@ -43,9 +43,11 @@
         <div id="loader"></div>
     </div>
     <div>
-        <div><button>back</button></div>
-    <webview id="webview" src="https://www.youtube.fr"></webview>
-    </div>
+            <button id="webBack">back</button>
+            <input type="text" id="webViewUrl" class="fullWidth">
+        </div>
+        <webview id="webview" src="https://www.youtube.fr" autosize></webview>
+    
     <script>
         require("./youtubeDownload.renderer.js")
     </script>

@@ -1,5 +1,6 @@
 import { app, Menu, ipcMain, Tray, BrowserWindow, clipboard, globalShortcut } from "electron";
 import * as screenCapture from "./screenCapture/screenCapture.constructor";
+import * as screenHistory from "./history/history.constructor";
 import * as webview from "./webview/wv.constructor";
 import * as ytDownload from "./youtubeDownloadView/youtubeDownload.constructor";
 import * as evtDef from "./share/eventDef";
@@ -9,12 +10,15 @@ let windows: Electron.BrowserWindow[] = [];
 let appTray: Electron.Tray;
 let timerClipboardPolling: number;
 let screenCaptureWin: Electron.BrowserWindow;
+let screenHistoryWin: Electron.BrowserWindow;
 
 let win: Electron.BrowserWindow;
 app.on("ready", empty => {
 
      screenCaptureWin = screenCapture.screenConstructor(app);
      windows.push(screenCaptureWin);
+     screenHistoryWin = screenHistory.screenConstructor(app);
+     windows.push(screenHistoryWin);
 
     // win = webview.screenConstructor("https://app.pluralsight.com/library/courses/electron-fundamentals/table-of-contents");
     // // win = createWinLocally("https://app.pluralsight.com/library/courses/electron-fundamentals/table-of-contents");
@@ -29,7 +33,6 @@ app.on("ready", empty => {
         // console.log(`app.getAppPath():${app.getAppPath()}`);
 
         // TODO: configure the folder where is stored the files
-        // TODO: 
         // windows[0].webContents.send(evtDef.SCREENCAPTURE_CLICKED, path.join(app.getAppPath(), "screenshots"));
         screenCaptureWin.webContents.send(evtDef.SCREENCAPTURE_CLICKED, path.join(app.getAppPath(), "screenshots"));
     });
@@ -49,12 +52,17 @@ ipcMain.on(evtDef.MAIN_CONSOLE_LOG, (evt, message) => {
     console.log(message);
 });
 
+ipcMain.on(evtDef.YOUTUBE_NAVIGATE, (evt, s) => {
+    console.log("[main] youtube navigate:", s);
+    screenHistoryWin.webContents.send(evtDef.YOUTUBE_NAVIGATE, s);
+});
+
+
 ipcMain.on(evtDef.WEBVIEW_NEW_WINDOW_REQUESTED, (evt, s) => {
     console.log("[main] new-window-request", s);
 
     let newBrowserWindow = webview.screenConstructor(s);
     // windows.push(win);
-    // ipcMain.emit("test", "texte");
     // newBrowserWindow.webContents.send(evtDef.WEBVIEW_NAVIGATE_TO, s);
 });
 
