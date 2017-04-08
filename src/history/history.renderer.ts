@@ -2,6 +2,7 @@ import { ipcRenderer, desktopCapturer, screen, remote } from "electron";
 import * as evtDef from "../share/eventDef";
 import * as lpr from "../share/helper.renderer";
 import * as $ from "jquery";
+import { downloadFile } from "./downloadFile";
 
 let eltHistoryList: HTMLDivElement;
 let urlList: string[] = [];
@@ -78,6 +79,7 @@ interface IYTMP3Data {
     message: string;
 }
 interface ICheckYTMp3Answer {
+    videoid: string;
     error: Error;
     timeOut: boolean;
     data: IYTMP3Data;
@@ -94,12 +96,18 @@ interface ICheckYTMp3Answer {
 function checkYTMp3IfCanDownload(id: string, key: string) {
     return $.getJSON("http://www.yt-mp3.com/fetch?v=" + id + "&apikey=" + key)
         .then(checkYTMp3IfCanDownloadParseAnswer)
+        .then((answer: ICheckYTMp3Answer) => {
+            // add videoid to the message
+            answer.videoid = id;
+            return answer;
+        })
         .then(logErrorIfAny)
         .then(createDownloadTileIfReady);
 }
 
 function checkYTMp3IfCanDownloadParseAnswer(yt_data: IYTMP3Data, status: string, jqHXR: JQueryXHR): ICheckYTMp3Answer {
     let answer: ICheckYTMp3Answer = {
+        videoid: "",
         timeOut: false,
         error: null,
         data: null
@@ -122,46 +130,54 @@ function createDownloadTileIfReady(answer: ICheckYTMp3Answer): ICheckYTMp3Answer
     if (answer.data.url !== "") {
         // lpr.consoleLogMain(`Ready to be download:${answer.data.url}`);
         $("#historyList")
-            .append(createSongTile(answer.data.thumbnail, answer.data.title, answer.data.url, answer.data.artist));
+            .append(createSongTile(
+                answer.videoid,
+                answer.data.thumbnail,
+                answer.data.title,
+                answer.data.url,
+                answer.data.artist));
     }
 
     return answer;
 }
 
-function createSongTile(thumbnail: string, title: string, downloadLink: string, artist: string): JQuery {
+function createSongTile(id: string, thumbnail: string, title: string, downloadLink: string, artist: string): JQuery {
 
     const tileTmpl = `
         <div class="songItem"
             title="${title}">
                 <img 
+                    id="img${id}"
                     src="${thumbnail}"
                     class = "songImg" 
                 >
                 <div class="songDescription">
                     <div class="songTitle">${title}</div>
                     <div class="songArtist">${artist}</div>
+                    <button class="songDownload" id="download${id}">Download</button>
                 </div>
         </div>`;
 
     const tileElt = $(tileTmpl)
-        .click("click", clickOnItem(downloadLink));
+        .on("click", `#img${id}`, clickOnItem(downloadLink))
+        .on("click", `#download${id}`, () => {
+            download("http:" + downloadLink);
+        });
 
     return tileElt;
 }
 
-function createEmptySongTile(thumbnail: string, title: string, downloadLink: string): HTMLDivElement {
-    const songTileImg = document.createElement("img");
-    songTileImg.src = thumbnail;
-    songTileImg.width = 196;
-    songTileImg.height = 110;
-    songTileImg.className = "song";
+function download(url: string) {
+    downloadFile({
+        localFile: "d://temp//downloadYTMP3//test.mp3",
+        remoteFile: url,
+        onProgress: progress
+    });
+}
 
-    const songTile = document.createElement("div");
-    songTile.title = title;
-    songTile.appendChild(songTileImg);
-    songTile.addEventListener("click", clickOnItem(downloadLink));
-
-    return songTile;
+function progress(received: number, total: number) {
+    let percentage = (received * 100) / total;
+    console.log(percentage + "% | " + received + " bytes out of " + total + " bytes.");
 }
 
 function logErrorIfAny(answer: ICheckYTMp3Answer): ICheckYTMp3Answer {
