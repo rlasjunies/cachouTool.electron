@@ -4,8 +4,8 @@ import * as lpr from "../share/helper.renderer";
 import * as $ from "jquery";
 import { downloadFile } from "../share/downloadFile";
 import * as path from "path";
-import {fileNameSafer} from "../share/fs.helper";
-import {ensureDirSync} from "fs-extra";
+import { fileNameSafer } from "../share/fs.helper";
+import { ensureDirSync } from "fs-extra";
 
 let meltHistoryList: HTMLDivElement;
 let murlList: string[] = [];
@@ -148,16 +148,19 @@ function createSongTile(id: string, thumbnail: string, title: string, downloadLi
     const tileTmpl = `
         <div class="songItem"
             title="${title}">
-                <img 
-                    id="img${id}"
-                    src="${thumbnail}"
-                    class = "songImg" 
-                >
-                <div class="songDescription">
-                    <div class="songTitle">${title}</div>
-                    <div class="songArtist">${artist}</div>
-                    <button class="songDownload" id="download${id}">Download</button>
+                <div class="songContent">
+                    <img 
+                        id="img${id}"
+                        src="${thumbnail}"
+                        class = "songImg" 
+                    >
+                    <div class="songDescription">
+                        <div class="songTitle">${title}</div>
+                        <div class="songArtist">${artist}</div>
+                        <button class="songDownload" id="download${id}">Download</button>
+                    </div>
                 </div>
+                <div class="songProgress" id="progress${id}"></div>
         </div>`;
 
     const tileElt = $(tileTmpl)
@@ -170,27 +173,50 @@ function createSongTile(id: string, thumbnail: string, title: string, downloadLi
 }
 
 function download(id: string, thumbnail: string, title: string, downloadLink: string, artist: string) {
-    const folderName =  path.join(mDownloadFolderRoot, fileNameSafer(artist), fileNameSafer(id));
+    const folderName = path.join(mDownloadFolderRoot, fileNameSafer(artist), fileNameSafer(id));
     ensureDirSync(folderName);
 
     const fileNameAudio = path.join(folderName, fileNameSafer(title) + ".mp3");
     downloadFile({
         localFile: fileNameAudio,
         remoteFile: downloadLink,
-        onProgress: progress
+        onStart: progressStart(id),
+        onProgress: progressing(id),
+        onDone: progressDone(id)
     });
 
     const fileNameThumbnail = path.join(folderName, fileNameSafer(title) + ".png");
     downloadFile({
         localFile: fileNameThumbnail,
         remoteFile: thumbnail,
-        onProgress: null
+        onStart: null,
+        onProgress: null,
+        onDone: null
     });
 }
 
-function progress(received: number, total: number) {
-    let percentage = (received * 100) / total;
-    console.log(percentage + "% | " + received + " bytes out of " + total + " bytes.");
+function progressStart(id: string) {
+    return () => {
+        $(`#progress${id}`)
+            .show()
+            .css({
+                "width": "0%" });
+    };
+}
+function progressDone(id: string) {
+    return () => {
+        $(`#progress${id}`).hide();
+    };
+}
+
+function progressing(id: string) {
+    return (received: number, total: number) => {
+        let percentage = Math.floor((received * 100) / total);
+        $(`#progress${id}`)
+            .css({
+                "width": "" + percentage + "%",
+                "transition": "0.2s"});
+    };
 }
 
 function logErrorIfAny(answer: ICheckYTMp3Answer): ICheckYTMp3Answer {

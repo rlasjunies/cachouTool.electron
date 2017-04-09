@@ -18,12 +18,17 @@ webview {
     width: 100%;
 }
 
-.listOfSong{
+.listOfSong {
     display: flex;
     flex-direction: column-reverse;
 }
 
-.songItem{
+.songItem {
+    display: flex;
+    flex-direction: column;
+}
+
+.songContent {
     display: flex;
     flex-direction: row;
 }
@@ -34,13 +39,21 @@ webview {
     height: 100px;
 }
 
-.songDescription{
+.songDescription {
+    display: flex;
     flex-direction: column;
 }
-.songTitle{
+
+.songTitle {
     font-size: 15;
 }
 
-.songArtist{
+.songArtist {
     font-size: 8;
+}
+
+.songProgress {
+    height:5px;
+    background-color: lawngreen;
+    width: 0px;
 }

@@ -18,6 +18,9 @@ export interface IConfiguration {
     remoteFile: string;
     localFile: string;
     onProgress: (received: number, total: number) => void;
+    onDone: () => void;
+    onStart: () => void;
+
 }
 
 export function downloadFile(configuration: IConfiguration) {
@@ -34,27 +37,30 @@ export function downloadFile(configuration: IConfiguration) {
         let out = fs.createWriteStream(configuration.localFile);
         req.pipe(out);
 
-        req.on("response", function ( data ) {
+        req.on("response", function (data) {
             // Change the total bytes value to get progress later.
-            total_bytes = parseInt(data.headers["content-length" ]);
+            total_bytes = parseInt(data.headers["content-length"]);
         });
 
         // Get progress if callback exists
         if (configuration.hasOwnProperty("onProgress") && (configuration.onProgress !== null)) {
-            req.on("data", function(chunk) {
+            req.on("data", function (chunk) {
                 // Update the received bytes
                 received_bytes += chunk.length;
 
                 configuration.onProgress(received_bytes, total_bytes);
             });
-        }else {
-            req.on("data", function(chunk) {
+        } else {
+            req.on("data", function (chunk) {
                 // Update the received bytes
                 received_bytes += chunk.length;
             });
         }
 
-        req.on("end", function() {
+        req.on("end", function () {
+            if (configuration.hasOwnProperty("onDone") && (configuration.onDone !== null)) {
+                configuration.onDone();
+            }
             resolve();
         });
     });
