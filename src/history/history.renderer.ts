@@ -173,12 +173,18 @@ function download(id: string, thumbnail: string, title: string, downloadLink: st
     const folderName =  path.join(mDownloadFolderRoot, fileNameSafer(artist), fileNameSafer(id));
     ensureDirSync(folderName);
 
-    const fileName = path.join(folderName, fileNameSafer(title) + ".mp3");
-
+    const fileNameAudio = path.join(folderName, fileNameSafer(title) + ".mp3");
     downloadFile({
-        localFile: fileName,
+        localFile: fileNameAudio,
         remoteFile: downloadLink,
         onProgress: progress
+    });
+
+    const fileNameThumbnail = path.join(folderName, fileNameSafer(title) + ".png");
+    downloadFile({
+        localFile: fileNameThumbnail,
+        remoteFile: thumbnail,
+        onProgress: null
     });
 }
 

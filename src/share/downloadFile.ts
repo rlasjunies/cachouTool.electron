@@ -40,7 +40,7 @@ export function downloadFile(configuration: IConfiguration) {
         });
 
         // Get progress if callback exists
-        if (configuration.hasOwnProperty("onProgress")) {
+        if (configuration.hasOwnProperty("onProgress") && (configuration.onProgress !== null)) {
             req.on("data", function(chunk) {
                 // Update the received bytes
                 received_bytes += chunk.length;
