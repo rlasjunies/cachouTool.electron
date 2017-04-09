@@ -1,12 +1,6 @@
 import * as fs from "fs";
 import * as fse from "fs-extra";
 
-// export function createFolderIfNotExistsSync(folderName: string) {
-//     if (!fs.existsSync(folderName)) {
-//         fs.mkdirSync(folderName);
-//     }
-// }
-
 /**
  * replace fileName/Folder bad char by _
  *
@@ -15,7 +9,8 @@ import * as fse from "fs-extra";
  * @returns {string} safeFileName
  */
 export function fileNameSafer(unsafeFileName: string): string {
-    return unsafeFileName.replace(/[^a-z0-9]/gi, "_").toLowerCase();
+    // return unsafeFileName.replace(/[^a-z0-9]/gi, "_").toLowerCase();
+    return unsafeFileName.replace(/[^a-z0-9]/gi, "_");
 }
 
 export function jsonFileSave(fileName: string, data: any) {
@@ -36,5 +31,3 @@ export function jsonFileRead<T>(fileName: string): T {
         throw err;
     }
 }
-
-
