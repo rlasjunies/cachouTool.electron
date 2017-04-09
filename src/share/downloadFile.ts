@@ -19,8 +19,6 @@ export interface IConfiguration {
     onProgress: (received: number, total: number) => void;
 }
 
-
-
 export function downloadFile(configuration: IConfiguration) {
     return new Promise((resolve, reject) => {
         // Save variable to know progress

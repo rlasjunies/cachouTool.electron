@@ -2,7 +2,7 @@ import { ipcRenderer, desktopCapturer, screen, remote } from "electron";
 import * as evtDef from "../share/eventDef";
 import * as lpr from "../share/helper.renderer";
 import * as $ from "jquery";
-import { downloadFile } from "./downloadFile";
+import { downloadFile } from "../share/downloadFile";
 
 let eltHistoryList: HTMLDivElement;
 let urlList: string[] = [];
