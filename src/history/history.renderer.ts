@@ -4,7 +4,7 @@ import * as lpr from "../share/helper.renderer";
 import * as $ from "jquery";
 import { downloadFile } from "../share/downloadFile";
 import * as path from "path";
-import { fileNameSafer } from "../share/fs.helper";
+import { fileNameSafer, jsonFileSave } from "../share/fs.helper";
 import { ensureDirSync } from "fs-extra";
 
 let meltHistoryList: HTMLDivElement;
@@ -12,18 +12,39 @@ let murlList: string[] = [];
 const mDownloadFolderRoot: string = "D:\\temp\\downloadYTMP3";
 const mAPIKey = "7eb63217014083fbef22a95255135046";
 
-onload = (evt: Event) => {
-    // eltHistoryList = (<HTMLDivElement>document.getElementById("historyList"));
-};
+interface IYTMP3Data {
+    artist: string;
+    average_rating: number;
+    bitrate: number;
+    categories: string;
+    expires_in: number;
+    id: string;
+    length: number;
+    progress: number;
+    ready: number;
+    status: "ok" | "error" | "timeout";
+    thumbnail: string;
+    title: string;
+    url: string;
+    video_url: string;
+    view_count: number;
+    // TODO: check if that correct
+    message: string;
+}
+interface ICheckYTMp3Answer {
+    videoid: string;
+    error: Error;
+    timeOut: boolean;
+    data: IYTMP3Data;
+}
 
-// lpr.consoleLogMain("history.renderer loaded!");
+onload = (evt: Event) => {
+};
 
 ipcRenderer.addListener(evtDef.YOUTUBE_NAVIGATE, addUrlInHistory);
 
 function addUrlInHistory(evt, url: string) {
     let videoId = getVideoId(url);
-    // lpr.consoleLogMain(`addUrl:${url}`);
-    // lpr.consoleLogMain(`addUrl video id:${videoId}`);
     if (videoId !== "") {
 
         if (isItNewAddItIfNot(videoId)) {
@@ -61,31 +82,6 @@ function clickOnItem(url: string) {
     };
 };
 
-interface IYTMP3Data {
-    artist: string;
-    average_rating: number;
-    bitrate: number;
-    categories: string;
-    expires_in: number;
-    id: string;
-    length: number;
-    progress: number;
-    ready: number;
-    status: "ok" | "error" | "timeout";
-    thumbnail: string;
-    title: string;
-    url: string;
-    video_url: string;
-    view_count: number;
-    // TODO: check if that correct
-    message: string;
-}
-interface ICheckYTMp3Answer {
-    videoid: string;
-    error: Error;
-    timeOut: boolean;
-    data: IYTMP3Data;
-}
 
 /**
  * check if yt-mp3 can convert the video to mp3
@@ -130,69 +126,75 @@ function checkYTMp3IfCanDownloadParseAnswer(yt_data: IYTMP3Data, status: string,
 function createDownloadTileIfReady(answer: ICheckYTMp3Answer): ICheckYTMp3Answer {
 
     if (answer.data.url !== "") {
+        answer.data.artist = answer.data.artist.trim();
+        answer.data.title = answer.data.title.trim();
+        answer.data.url = "http:" + answer.data.url;
         // lpr.consoleLogMain(`Ready to be download:${answer.data.url}`);
-        $("#historyList")
-            .append(createSongTile(
-                answer.videoid,
-                answer.data.thumbnail,
-                answer.data.title.trim(),
-                answer.data.url,
-                answer.data.artist.trim()));
+        $("#historyList").append(createSongTile( answer.data));
     }
 
     return answer;
 }
 
-function createSongTile(id: string, thumbnail: string, title: string, downloadLink: string, artist: string): JQuery {
+function createSongTile(songData: IYTMP3Data): JQuery {
 
     const tileTmpl = `
         <div class="songItem"
-            title="${title}">
+            title="${songData.title}">
                 <div class="songContent">
                     <img 
-                        id="img${id}"
-                        src="${thumbnail}"
+                        id="img${songData.id}"
+                        src="${songData.thumbnail}"
                         class = "songImg" 
                     >
                     <div class="songDescription">
-                        <div class="songTitle">${title}</div>
-                        <div class="songArtist">${artist}</div>
-                        <button class="songDownload" id="download${id}">Download</button>
+                        <div class="songTitle">${songData.title}</div>
+                        <div class="songArtist">${songData.artist}</div>
+                        <button class="songDownload" id="download${songData.id}">Download</button>
                     </div>
                 </div>
-                <div class="songProgress" id="progress${id}"></div>
+                <div class="songProgress" id="progress${songData.id}"></div>
         </div>`;
 
     const tileElt = $(tileTmpl)
-        .on("click", `#img${id}`, clickOnItem(downloadLink))
-        .on("click", `#download${id}`, () => {
-            download(id, thumbnail, title, "http:" + downloadLink, artist);
+        .on("click", `#img${songData.id}`, clickOnItem(songData.url))
+        .on("click", `#download${songData.id}`, () => {
+            downloadSong(songData);
         });
 
     return tileElt;
 }
 
-function download(id: string, thumbnail: string, title: string, downloadLink: string, artist: string) {
-    const folderName = path.join(mDownloadFolderRoot, fileNameSafer(artist), fileNameSafer(id));
+/**
+ * download audio, thumbnail and json propterty file
+ * 
+ * @param {IYTMP3Data} songData
+ */
+function downloadSong(songData: IYTMP3Data) {
+    // const folderName = path.join(mDownloadFolderRoot, fileNameSafer(artist), fileNameSafer(id));
+    const folderName = path.join(mDownloadFolderRoot);
     ensureDirSync(folderName);
 
-    const fileNameAudio = path.join(folderName, fileNameSafer(title) + ".mp3");
+    const fileNameAudio = path.join(folderName, fileNameSafer(songData.id) + ".mp3");
     downloadFile({
         localFile: fileNameAudio,
-        remoteFile: downloadLink,
-        onStart: progressStart(id),
-        onProgress: progressing(id),
-        onDone: progressDone(id)
+        remoteFile: songData.url,
+        onStart: progressStart(songData.id),
+        onProgress: progressing(songData.id),
+        onDone: progressDone(songData.id)
     });
 
-    const fileNameThumbnail = path.join(folderName, fileNameSafer(title) + ".png");
+    const fileNameThumbnail = path.join(folderName, fileNameSafer(songData.id) + ".png");
     downloadFile({
         localFile: fileNameThumbnail,
-        remoteFile: thumbnail,
+        remoteFile: songData.thumbnail,
         onStart: null,
         onProgress: null,
         onDone: null
     });
+
+    const fileNameProperties = path.join(folderName, fileNameSafer(songData.id) + ".json");
+    jsonFileSave(fileNameProperties, songData );
 }
 
 function progressStart(id: string) {
