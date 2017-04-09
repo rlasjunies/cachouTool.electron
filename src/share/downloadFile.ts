@@ -12,6 +12,7 @@
 
 import * as request from "request";
 import * as fs from "fs";
+import * as fse from "fs-extra";
 
 export interface IConfiguration {
     remoteFile: string;

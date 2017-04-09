@@ -3,11 +3,13 @@ import * as evtDef from "../share/eventDef";
 import * as lpr from "../share/helper.renderer";
 import * as $ from "jquery";
 import { downloadFile } from "../share/downloadFile";
+import * as path from "path";
+import {fileNameSafer} from "../share/fs.helper";
+import {ensureDirSync} from "fs-extra";
 
-let eltHistoryList: HTMLDivElement;
-let urlList: string[] = [];
-// let urlListCheckToDownload: string[] = [];
-
+let meltHistoryList: HTMLDivElement;
+let murlList: string[] = [];
+const mDownloadFolderRoot: string = "D:\\temp\\downloadYTMP3";
 const mAPIKey = "7eb63217014083fbef22a95255135046";
 
 onload = (evt: Event) => {
@@ -43,9 +45,9 @@ function checkYTMp3IfCanDownloadAndRetries(videoId: string, APIKey: string) {
 
 function isItNewAddItIfNot(videoId: string): boolean {
 
-    if ($.inArray(videoId, urlList) === -1) {
+    if ($.inArray(videoId, murlList) === -1) {
         // not found in the array
-        urlList.push(videoId);
+        murlList.push(videoId);
         return true;
     } else {
         return false;
@@ -120,7 +122,7 @@ function checkYTMp3IfCanDownloadParseAnswer(yt_data: IYTMP3Data, status: string,
     } else {
         answer.data = yt_data;
         // remove artist name and ' -' before the title of song
-        answer.data.title = answer.data.title.slice(answer.data.artist.length + 2);
+        answer.data.title = answer.data.title.slice(answer.data.artist.length + 2).trim();
     }
     return answer;
 };
@@ -133,9 +135,9 @@ function createDownloadTileIfReady(answer: ICheckYTMp3Answer): ICheckYTMp3Answer
             .append(createSongTile(
                 answer.videoid,
                 answer.data.thumbnail,
-                answer.data.title,
+                answer.data.title.trim(),
                 answer.data.url,
-                answer.data.artist));
+                answer.data.artist.trim()));
     }
 
     return answer;
@@ -161,16 +163,21 @@ function createSongTile(id: string, thumbnail: string, title: string, downloadLi
     const tileElt = $(tileTmpl)
         .on("click", `#img${id}`, clickOnItem(downloadLink))
         .on("click", `#download${id}`, () => {
-            download("http:" + downloadLink);
+            download(id, thumbnail, title, "http:" + downloadLink, artist);
         });
 
     return tileElt;
 }
 
-function download(url: string) {
+function download(id: string, thumbnail: string, title: string, downloadLink: string, artist: string) {
+    const folderName =  path.join(mDownloadFolderRoot, fileNameSafer(artist), fileNameSafer(id));
+    ensureDirSync(folderName);
+
+    const fileName = path.join(folderName, fileNameSafer(title) + ".mp3");
+
     downloadFile({
-        localFile: "d://temp//downloadYTMP3//test.mp3",
-        remoteFile: url,
+        localFile: fileName,
+        remoteFile: downloadLink,
         onProgress: progress
     });
 }
@@ -196,8 +203,7 @@ function getVideoId(insUrl: string): string {
     // let urlParsed = insUrl.match(/(?:https?:\/{2})?(?:w{3}\.)?youtu(?:be)?\.(?:com|be)(?:\/watch\?v=|\/)([^\s&]+)/);
     // let videoid = urlParsed[1];
     let urlParsed = insUrl.match(/((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?/);
-    lpr.consoleLogMain(`urlParsed:${urlParsed}`);
-    // let videoid = urlParsed[5];
+    // lpr.consoleLogMain(`urlParsed:${urlParsed}`);
     if (urlParsed == null) {
         return "";
     } else {

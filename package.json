@@ -11,6 +11,10 @@
   },
   "devDependencies": {
     "@types/electron": "^1.4.32",
+    "@types/cheerio": "^0.22.0",
+    "@types/fs-extra": "^2.0.0",
+    "@types/jquery": "^2.0.41",
+    "@types/request": "^0.0.41",
     "electron-packager": "^8.5.2",
     "electron-prebuilt": "^1.4.13",
     "rimraf": "^2.6.1",
@@ -18,10 +22,8 @@
     "typescript": "^2.2.2"
   },
   "dependencies": {
-    "@types/cheerio": "^0.22.0",
-    "@types/jquery": "^2.0.41",
-    "@types/request": "^0.0.41",
     "cheerio": "^0.22.0",
+    "fs-extra": "^2.1.2",
     "jquery": "^3.2.0",
     "request": "^2.81.0"
   }
