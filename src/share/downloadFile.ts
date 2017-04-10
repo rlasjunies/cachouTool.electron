@@ -63,5 +63,9 @@ export function downloadFile(configuration: IConfiguration) {
             }
             resolve();
         });
+
+        if (configuration.hasOwnProperty("onStart") && (configuration.onStart !== null)) {
+            configuration.onStart();
+        }
     });
 }

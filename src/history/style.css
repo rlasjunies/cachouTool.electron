@@ -55,5 +55,18 @@ webview {
 .songProgress {
     height:5px;
     background-color: lawngreen;
-    width: 0px;
+    visibility: hidden;
+}
+
+.songDownload {
+    display: none;
+}
+.songPlay {
+    display: none;
+}
+.songPause {
+    display: none;
+}
+.songStop {
+    display: none;
 }

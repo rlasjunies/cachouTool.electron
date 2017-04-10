@@ -4,11 +4,13 @@ import * as lpr from "../share/helper.renderer";
 import * as $ from "jquery";
 import { downloadFile } from "../share/downloadFile";
 import * as path from "path";
-import { fileNameSafer, jsonFileSave } from "../share/fs.helper";
+import { fileNameSafer, jsonFileSave, jsonFileRead } from "../share/fs.helper";
 import { ensureDirSync } from "fs-extra";
+import * as fs from "fs";
+
 
 let meltHistoryList: HTMLDivElement;
-let murlList: string[] = [];
+let mIDList: string[] = [];
 const mDownloadFolderRoot: string = "D:\\temp\\downloadYTMP3";
 const mAPIKey = "7eb63217014083fbef22a95255135046";
 
@@ -38,10 +40,80 @@ interface ICheckYTMp3Answer {
     data: IYTMP3Data;
 }
 
-onload = (evt: Event) => {
-};
+// Event listening registration
+const MEVT_SONG_READY_FOR_DOWNLOAD = "SONG_READY_FOR_DOWNLOAD";
+const MEVT_SONG_DOWNLOADING = "SONG_DOWNLOADING";
+const MEVT_SONG_ADDED = "SONG_ADDED_EXISTING";
+const MEVT_SONG_DOWNLOADED = "SONG_DOWNLOADED";
+const MEVT_SONG_PLAYING = "MEVT_SONG_PLAYING";
+const MEVT_SONG_STOPPED = "MEVT_SONG_STOPPED";
+const MEVT_SONG_PAUSED = "MEVT_SONG_PAUSED";
 
 ipcRenderer.addListener(evtDef.YOUTUBE_NAVIGATE, addUrlInHistory);
+ipcRenderer.on(MEVT_SONG_READY_FOR_DOWNLOAD, (event) => {
+    let value = (<IYTMP3Data>(<any>event));
+    // lpr.consoleLogMain(event);
+    // lpr.consoleLogMain(value);
+    $(`#download${value.id}`).css({ "display": "flex" });
+    $(`#play${value.id}`).css({ "display": "none" });
+    $(`#pause${value.id}`).css({ "display": "none" });
+    $(`#stop${value.id}`).css({ "display": "none" });
+});
+ipcRenderer.addListener(MEVT_SONG_DOWNLOADING, (event) => {
+    let value = (<IYTMP3Data>(<any>event));
+    $(`#download${value.id}`).css({ "display": "none" });
+    $(`#play${value.id}`).css({ "display": "none" });
+    $(`#pause${value.id}`).css({ "display": "none" });
+    $(`#stop${value.id}`).css({ "display": "none" });
+});
+ipcRenderer.addListener(MEVT_SONG_DOWNLOADED, (event) => {
+    let value = (<IYTMP3Data>(<any>event));
+    $(`#progress${value.id}`).hide();
+    $(`#download${value.id}`).css({ display: "none" });
+    $(`#play${value.id}`).css({ display: "flex" });
+    $(`#pause${value.id}`).css({ display: "none" });
+    $(`#stop${value.id}`).css({ display: "none" });
+});
+ipcRenderer.addListener(MEVT_SONG_PLAYING, (event) => {
+    let value = (<IYTMP3Data>(<any>event));
+    $(`#download${value.id}`).css({ display: "none" });
+    $(`#play${value.id}`).css({ display: "none" });
+    $(`#pause${value.id}`).css({ display: "flex" });
+    $(`#stop${value.id}`).css({ display: "flex" });
+});
+ipcRenderer.addListener(MEVT_SONG_PAUSED, (event) => {
+    ipcRenderer.emit(MEVT_SONG_DOWNLOADED, event);
+});
+ipcRenderer.addListener(MEVT_SONG_STOPPED, (event) => {
+    ipcRenderer.emit(MEVT_SONG_DOWNLOADED, event);
+});
+
+
+
+onload = (evt: Event) => {
+    mIDList = loadIDsFromFolder();
+    // lpr.consoleLogMain(mIDList);
+};
+
+function loadIDsFromFolder(): string[] {
+    try {
+        const filesName = fs.readdirSync(mDownloadFolderRoot);
+        return filesName.map((fileName: string) => {
+            if ((/\.(json)$/i).test(fileName)) {
+                return fileName.replace(".json", "");
+            } else {
+                return null;
+            }
+        })
+            .filter((fileName: string | null) => {
+                return !(fileName === null);
+            });
+    }
+    catch (err) {
+        throw err;
+    }
+}
+
 
 function addUrlInHistory(evt, url: string) {
     let videoId = getVideoId(url);
@@ -66,9 +138,9 @@ function checkYTMp3IfCanDownloadAndRetries(videoId: string, APIKey: string) {
 
 function isItNewAddItIfNot(videoId: string): boolean {
 
-    if ($.inArray(videoId, murlList) === -1) {
+    if ($.inArray(videoId, mIDList) === -1) {
         // not found in the array
-        murlList.push(videoId);
+        mIDList.push(videoId);
         return true;
     } else {
         return false;
@@ -81,7 +153,6 @@ function clickOnItem(url: string) {
         ipcRenderer.send(evtDef.HISTORY_CLICKED, url);
     };
 };
-
 
 /**
  * check if yt-mp3 can convert the video to mp3
@@ -130,14 +201,14 @@ function createDownloadTileIfReady(answer: ICheckYTMp3Answer): ICheckYTMp3Answer
         answer.data.title = answer.data.title.trim();
         answer.data.url = "http:" + answer.data.url;
         // lpr.consoleLogMain(`Ready to be download:${answer.data.url}`);
-        $("#historyList").append(createSongTile( answer.data));
+        $("#historyList").append(createSongTile(answer.data));
+        ipcRenderer.emit(MEVT_SONG_READY_FOR_DOWNLOAD, answer.data);
     }
 
     return answer;
 }
 
 function createSongTile(songData: IYTMP3Data): JQuery {
-
     const tileTmpl = `
         <div class="songItem"
             title="${songData.title}">
@@ -150,7 +221,12 @@ function createSongTile(songData: IYTMP3Data): JQuery {
                     <div class="songDescription">
                         <div class="songTitle">${songData.title}</div>
                         <div class="songArtist">${songData.artist}</div>
+                        <div class="songActions" id="action${songData.id}">
                         <button class="songDownload" id="download${songData.id}">Download</button>
+                        <button class="songPlay" id="play${songData.id}">Play</button>
+                        <button class="songStop" id="stop${songData.id}">Stop</button>
+                        <button class="songPause" id="pause${songData.id}">Pause</button>
+                        </div>
                     </div>
                 </div>
                 <div class="songProgress" id="progress${songData.id}"></div>
@@ -160,14 +236,37 @@ function createSongTile(songData: IYTMP3Data): JQuery {
         .on("click", `#img${songData.id}`, clickOnItem(songData.url))
         .on("click", `#download${songData.id}`, () => {
             downloadSong(songData);
+            ipcRenderer.emit(MEVT_SONG_DOWNLOADING, songData);
+        })
+        .on("click", `#play${songData.id}`, () => {
+            playSong(songData);
+            ipcRenderer.emit(MEVT_SONG_PLAYING, songData);
+        })
+        .on("click", `#pause${songData.id}`, () => {
+            pauseSong(songData);
+            ipcRenderer.emit(MEVT_SONG_PAUSED, songData);
+        })
+        .on("click", `#stop${songData.id}`, () => {
+            stopSong(songData);
+            ipcRenderer.emit(MEVT_SONG_STOPPED, songData);
         });
-
+    ipcRenderer.emit(MEVT_SONG_READY_FOR_DOWNLOAD, songData);
     return tileElt;
+}
+
+function playSong(song: IYTMP3Data) {
+
+}
+function pauseSong(song: IYTMP3Data) {
+
+}
+function stopSong(song: IYTMP3Data) {
+
 }
 
 /**
  * download audio, thumbnail and json propterty file
- * 
+ *
  * @param {IYTMP3Data} songData
  */
 function downloadSong(songData: IYTMP3Data) {
@@ -194,20 +293,23 @@ function downloadSong(songData: IYTMP3Data) {
     });
 
     const fileNameProperties = path.join(folderName, fileNameSafer(songData.id) + ".json");
-    jsonFileSave(fileNameProperties, songData );
+    jsonFileSave(fileNameProperties, songData);
+
 }
 
 function progressStart(id: string) {
     return () => {
         $(`#progress${id}`)
-            .show()
             .css({
-                "width": "0%" });
+                "width": "0%",
+                "visibility": "visible"
+            });
     };
 }
+
 function progressDone(id: string) {
     return () => {
-        $(`#progress${id}`).hide();
+        ipcRenderer.emit(MEVT_SONG_DOWNLOADED, {id: id});
     };
 }
 
@@ -217,7 +319,9 @@ function progressing(id: string) {
         $(`#progress${id}`)
             .css({
                 "width": "" + percentage + "%",
-                "transition": "0.2s"});
+                "transition": "0.2s",
+                "visibility": "visible"
+            });
     };
 }
 
@@ -240,6 +344,7 @@ function getVideoId(insUrl: string): string {
     // lpr.consoleLogMain(`urlParsed:${urlParsed}`);
     if (urlParsed == null) {
         return "";
+
     } else {
         return urlParsed[5];
     }
