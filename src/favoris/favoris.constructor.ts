@@ -13,11 +13,17 @@ export function screenConstructor(app: Electron.App): Electron.BrowserWindow {
 
     win.webContents.openDevTools();
 
-    win.loadURL(`file://${__dirname}/history.html`);
-    console.log(`loaded: file://${__dirname}/history.html`);
-
+    win.loadURL(`file://${__dirname}/favoris.html`);
     win.on("close", _ => {
-        console.log("history windows closed!");
+        console.log("favorites windows closed!");
+    });
+
+    win.on("ready-to-show", () => {
+        console.log("ready to show favorites!");
+    });
+
+    win.on("show", () => {
+        console.log("ready to show favorites!");
     });
 
     return win;

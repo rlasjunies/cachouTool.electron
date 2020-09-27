@@ -4,12 +4,12 @@ import * as evtDef from "../share/eventDef";
 
 ipcRenderer.on(evtDef.WEBVIEW_NAVIGATE_TO, webViewNagivateTo);
 
-let webView: Electron.WebViewElement = <Electron.WebViewElement>document.getElementById("webview");
+let webView: Electron.WebviewTag = <Electron.WebviewTag>document.getElementById("webview");
 webView.addEventListener("did-start-loading", function (e) {
     // webView.openDevTools();
 });
 
-function webViewNagivateTo(evt: Electron.IpcRendererEvent, s) {
+function webViewNagivateTo(evt: Electron.IpcRendererEvent, s: string) {
     console.log("[wv.rendered]", evt.sender.eventNames, s);
     lprr.consoleLogMain(`---------- test:${s}`);
 
@@ -17,7 +17,7 @@ function webViewNagivateTo(evt: Electron.IpcRendererEvent, s) {
 }
 
 onload = () => {
-    const webview: Electron.WebViewElement = <Electron.WebViewElement>document.getElementById("webview");
+    const webview: Electron.WebviewTag = <Electron.WebviewTag>document.getElementById("webview");
     const indicator: HTMLDivElement = <HTMLDivElement>document.querySelector(".indicator");
 
     const loadstart = () => {
@@ -32,15 +32,15 @@ onload = () => {
         urlDiv.innerHTML = `${webview.getURL()}`;
     };
 
-    const eventTracking = (evt: Electron.WebViewElement.Event) => {
+    const eventTracking = (evt: Electron.Event) => {
         // console.log(`Event:${evt.type}`);
         // h.consoleLogMain(`Event:${evt.type}`);
         // h.consoleLogMain(`Url:${webview.getURL()}`);
         // rendererConsole(`Event:${evt.type}`);
         if (evt.type === "new-window") {
-            const evtNW = (<Electron.WebViewElement.NewWindowEvent>evt);
-            // lprr.consoleLogMain(`!!!!!!!!!!!! Url:${webview.getURL()}`);
-            // lprr.consoleLogMain(`!!!!!!!!!!!! evt.url:${evtNW.url}`);
+            const evtNW = (<Electron.NewWindowEvent>evt);
+            lprr.consoleLogMain(`!!!!!!!!!!!! Url:${webview.getURL()}`);
+            lprr.consoleLogMain(`!!!!!!!!!!!! evt.url:${evtNW.url}`);
 
             ipcRenderer.send(evtDef.WEBVIEW_NEW_WINDOW_REQUESTED, evtNW.url);
             // const protocol = require('url').parse(e.url).protocol

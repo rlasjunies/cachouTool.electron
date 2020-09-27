@@ -49,31 +49,6 @@ const MEVT_SONG_PLAYING = "MEVT_SONG_PLAYING";
 const MEVT_SONG_STOPPED = "MEVT_SONG_STOPPED";
 const MEVT_SONG_PAUSED = "MEVT_SONG_PAUSED";
 
-ipcRenderer.addListener(evtDef.YOUTUBE_NAVIGATE, addUrlInHistory);
-ipcRenderer.on(MEVT_SONG_READY_FOR_DOWNLOAD, (event) => {
-    let value = (<IYTMP3Data>(<any>event));
-    // lpr.consoleLogMain(event);
-    // lpr.consoleLogMain(value);
-    $(`#download${value.id}`).css({ "display": "flex" });
-    $(`#play${value.id}`).css({ "display": "none" });
-    $(`#pause${value.id}`).css({ "display": "none" });
-    $(`#stop${value.id}`).css({ "display": "none" });
-});
-ipcRenderer.addListener(MEVT_SONG_DOWNLOADING, (event) => {
-    let value = (<IYTMP3Data>(<any>event));
-    $(`#download${value.id}`).css({ "display": "none" });
-    $(`#play${value.id}`).css({ "display": "none" });
-    $(`#pause${value.id}`).css({ "display": "none" });
-    $(`#stop${value.id}`).css({ "display": "none" });
-});
-ipcRenderer.addListener(MEVT_SONG_DOWNLOADED, (event) => {
-    let value = (<IYTMP3Data>(<any>event));
-    $(`#progress${value.id}`).hide();
-    $(`#download${value.id}`).css({ display: "none" });
-    $(`#play${value.id}`).css({ display: "flex" });
-    $(`#pause${value.id}`).css({ display: "none" });
-    $(`#stop${value.id}`).css({ display: "none" });
-});
 ipcRenderer.addListener(MEVT_SONG_PLAYING, (event) => {
     let value = (<IYTMP3Data>(<any>event));
     $(`#download${value.id}`).css({ display: "none" });
@@ -102,7 +77,7 @@ function loadIDsFromFolder(): string[] {
             if ((/\.(json)$/i).test(fileName)) {
                 return fileName.replace(".json", "");
             } else {
-                return null;
+                return "";
             }
         })
             .filter((fileName: string | null) => {
@@ -115,154 +90,8 @@ function loadIDsFromFolder(): string[] {
 }
 
 
-function addUrlInHistory(evt, url: string) {
-    let videoId = getVideoId(url);
-    if (videoId !== "") {
 
-        if (isItNewAddItIfNot(videoId)) {
-            checkYTMp3IfCanDownloadAndRetries(videoId, mAPIKey);
-        }
-    }
-}
 
-function checkYTMp3IfCanDownloadAndRetries(videoId: string, APIKey: string) {
-    checkYTMp3IfCanDownload(videoId, mAPIKey)
-        .then((YTMP3answer) => {
-            if (YTMP3answer.timeOut) {
-                lpr.consoleLogMain(`plan retry:${videoId}`);
-                // TODO: improve as it's currently infinite loop
-                setTimeout(checkYTMp3IfCanDownload(videoId, APIKey), 1000);
-            }
-        });
-}
-
-function isItNewAddItIfNot(videoId: string): boolean {
-
-    if ($.inArray(videoId, mIDList) === -1) {
-        // not found in the array
-        mIDList.push(videoId);
-        return true;
-    } else {
-        return false;
-    }
-}
-
-function clickOnItem(url: string) {
-    return (evtClick: Event) => {
-        lpr.consoleLogMain(`Clicked url:${url}`);
-        ipcRenderer.send(evtDef.HISTORY_CLICKED, url);
-    };
-};
-
-/**
- * check if yt-mp3 can convert the video to mp3
- * it return a structure
- * //TODO: retries may need to be added
- * @param {string} id
- * @param {string} key
- * @returns
- */
-function checkYTMp3IfCanDownload(id: string, key: string) {
-    return $.getJSON("http://www.yt-mp3.com/fetch?v=" + id + "&apikey=" + key)
-        .then(checkYTMp3IfCanDownloadParseAnswer)
-        .then((answer: ICheckYTMp3Answer) => {
-            // add videoid to the message
-            answer.videoid = id;
-            return answer;
-        })
-        .then(logErrorIfAny)
-        .then(createDownloadTileIfReady);
-}
-
-function checkYTMp3IfCanDownloadParseAnswer(yt_data: IYTMP3Data, status: string, jqHXR: JQueryXHR): ICheckYTMp3Answer {
-    let answer: ICheckYTMp3Answer = {
-        videoid: "",
-        timeOut: false,
-        error: null,
-        data: null
-    };
-
-    if (yt_data.status === "error") {
-        answer.error = new Error(yt_data.message);
-    } else if (yt_data.status === "timeout") {
-        answer.timeOut = true;
-    } else {
-        answer.data = yt_data;
-        // remove artist name and ' -' before the title of song
-        answer.data.title = answer.data.title.slice(answer.data.artist.length + 2).trim();
-    }
-    return answer;
-};
-
-function createDownloadTileIfReady(answer: ICheckYTMp3Answer): ICheckYTMp3Answer {
-
-    if (answer.data.url !== "") {
-        answer.data.artist = answer.data.artist.trim();
-        answer.data.title = answer.data.title.trim();
-        answer.data.url = "http:" + answer.data.url;
-        // lpr.consoleLogMain(`Ready to be download:${answer.data.url}`);
-        $("#historyList").append(createSongTile(answer.data));
-        ipcRenderer.emit(MEVT_SONG_READY_FOR_DOWNLOAD, answer.data);
-    }
-
-    return answer;
-}
-
-function createSongTile(songData: IYTMP3Data): JQuery {
-    const tileTmpl = `
-        <div class="songItem"
-            title="${songData.title}">
-                <div class="songContent">
-                    <img 
-                        id="img${songData.id}"
-                        src="${songData.thumbnail}"
-                        class = "songImg" 
-                    >
-                    <div class="songDescription">
-                        <div class="songTitle">${songData.title}</div>
-                        <div class="songArtist">${songData.artist}</div>
-                        <div class="songActions" id="action${songData.id}">
-                        <button class="songDownload" id="download${songData.id}">Download</button>
-                        <button class="songPlay" id="play${songData.id}">Play</button>
-                        <button class="songStop" id="stop${songData.id}">Stop</button>
-                        <button class="songPause" id="pause${songData.id}">Pause</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="songProgress" id="progress${songData.id}"></div>
-        </div>`;
-
-    const tileElt = $(tileTmpl)
-        .on("click", `#img${songData.id}`, clickOnItem(songData.url))
-        .on("click", `#download${songData.id}`, () => {
-            downloadSong(songData);
-            ipcRenderer.emit(MEVT_SONG_DOWNLOADING, songData);
-        })
-        .on("click", `#play${songData.id}`, () => {
-            playSong(songData);
-            ipcRenderer.emit(MEVT_SONG_PLAYING, songData);
-        })
-        .on("click", `#pause${songData.id}`, () => {
-            pauseSong(songData);
-            ipcRenderer.emit(MEVT_SONG_PAUSED, songData);
-        })
-        .on("click", `#stop${songData.id}`, () => {
-            stopSong(songData);
-            ipcRenderer.emit(MEVT_SONG_STOPPED, songData);
-        });
-    ipcRenderer.emit(MEVT_SONG_READY_FOR_DOWNLOAD, songData);
-    return tileElt;
-}
-
-function playSong(song: IYTMP3Data) {
-
-}
-function pauseSong(song: IYTMP3Data) {
-
-}
-function stopSong(song: IYTMP3Data) {
-
-}
 
 /**
  * download audio, thumbnail and json propterty file
@@ -287,9 +116,9 @@ function downloadSong(songData: IYTMP3Data) {
     downloadFile({
         localFile: fileNameThumbnail,
         remoteFile: songData.thumbnail,
-        onStart: null,
-        onProgress: null,
-        onDone: null
+        onStart: () => { },
+        onProgress: () => { },
+        onDone: () => { }
     });
 
     const fileNameProperties = path.join(folderName, fileNameSafer(songData.id) + ".json");
@@ -309,7 +138,7 @@ function progressStart(id: string) {
 
 function progressDone(id: string) {
     return () => {
-        ipcRenderer.emit(MEVT_SONG_DOWNLOADED, {id: id});
+        ipcRenderer.emit(MEVT_SONG_DOWNLOADED, { id: id });
     };
 }
 
@@ -348,4 +177,4 @@ function getVideoId(insUrl: string): string {
     } else {
         return urlParsed[5];
     }
-};
+}

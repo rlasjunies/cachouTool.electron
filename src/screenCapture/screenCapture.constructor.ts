@@ -9,12 +9,12 @@ export function screenConstructor(app: Electron.App): Electron.BrowserWindow {
         show: false
     });
 
-    // win.openDevTools();
+    win.webContents.openDevTools();
 
     win.loadURL(`file://${__dirname}/screenCapture.html`);
     win.on("close", _ => {
         console.log("screenCapture windows closed!");
-        win = null;
+        win.close();
     });
 
     return win;

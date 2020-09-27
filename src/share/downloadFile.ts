@@ -39,7 +39,7 @@ export function downloadFile(configuration: IConfiguration) {
 
         req.on("response", function (data) {
             // Change the total bytes value to get progress later.
-            total_bytes = parseInt(data.headers["content-length"]);
+            total_bytes = parseInt(data.headers["content-length"] || "");
         });
 
         // Get progress if callback exists

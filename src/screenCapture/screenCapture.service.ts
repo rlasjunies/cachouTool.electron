@@ -5,18 +5,20 @@ import * as fs from "fs";
 import { consoleLogMain } from "../share/helper.renderer";
 
 export function getMainSource(inDesktopCapturer: Electron.DesktopCapturer, inScreen: Electron.Screen, done: (source: Electron.DesktopCapturerSource) => void) {
-    const options: Electron.DesktopCapturerOptions = {
-        types: ["screen"],
-        thumbnailSize: inScreen.getPrimaryDisplay().workAreaSize
-    };
+    // TODO: code commenté lors du portage vers Electron 7.0.0
+    // il faut retrouver la logique autour de cette fonction
+    // const options = {
+    //     types: ["screen"],
+    //     thumbnailSize: inScreen.getPrimaryDisplay().workAreaSize
+    // };
 
-    inDesktopCapturer.getSources(options, (err: Error, sources: Electron.DesktopCapturerSource[]) => {
-        if (err) consoleLogMain(`Cannot capture screen: ${err.message} \n ${err.stack}`);
+    // inDesktopCapturer.getSources(options, (err: Error, sources: Electron.DesktopCapturerSource[]) => {
+    //     if (err) consoleLogMain(`Cannot capture screen: ${err.message} \n ${err.stack}`);
 
-        const isMainSource = (source: Electron.DesktopCapturerSource, index, arr) => source.name === "Entire Screen" || source.name === "Screen 1";
+    //     const isMainSource = (source: Electron.DesktopCapturerSource, index, arr) => source.name === "Entire Screen" || source.name === "Screen 1";
 
-        done( sources.filter(isMainSource)[0] );
-    });
+    //     done( sources.filter(isMainSource)[0] );
+    // });
 }
 
 export function writeScreenshot(png: Buffer, filePath: string) {

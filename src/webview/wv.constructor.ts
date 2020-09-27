@@ -16,21 +16,21 @@ export function screenConstructor(url: string): Electron.BrowserWindow {
 
 
     // win.loadURL(url);
-    browserWindow.on("close", _ => {
+    browserWindow.on("close", () => {
         console.log("-----------------------------> webview windows closed!");
         // lprr.consoleLogMain("-----------------------------> webview windows closed!");
         lprm.consoleLogMain("-----------------------------> webview windows closed!");
         // win = null;
     });
 
-    browserWindow.on("show", _ => {
+    browserWindow.on("show", () => {
         console.log("-----------------------------> webview windows show!");
         lprr.consoleLogMain("-----------------------------> webview windows show!");
         lprm.consoleLogMain("-----------------------------> webview windows show!");
         // browserWindow.webContents.send("test", "2" + url);
     });
 
-    browserWindow.on("ready-to-show", _ => {
+    browserWindow.on("ready-to-show", () => {
         // lprr.consoleLogMain("-----------------------------> webview windows ready-to-show!");
         // console.log("-----------------------------> webview windows ready-to-show!");
         lprr.consoleLogMain("-----------------------------> webview windows ready-to-show!");

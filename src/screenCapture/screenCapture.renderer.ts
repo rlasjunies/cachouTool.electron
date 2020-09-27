@@ -8,7 +8,7 @@ import {ensureDirSync} from "fs-extra";
 
 ipcRenderer.on(evtDef.SCREENCAPTURE_CLICKED, onCapture);
 
-export function onCapture(evt, targetPath: string) {
+export function onCapture(evt: Electron.Event, targetPath: string) {
     srv.getMainSource(desktopCapturer, screen, source => {
         consoleLogMain(`[onCapture] - ${targetPath}`);
 
