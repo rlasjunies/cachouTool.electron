@@ -14,7 +14,7 @@
     "dev": "npm run-script watch & node_modules/.bin/electron ."
   },
   "devDependencies": {
-    "electron": "^7.0.0",
+    "electron": "^11.5.0",
     "shelljs": "^0.8.3",
     "ts-node": "^8.4.1"
   },
